@@ -49,23 +49,56 @@
 				height: 24px;
 			}
 
-			hr {
-				width: 99%;
+			.Box {
+				width: 100%;
+				display: flex;
+				margin-top: 4px;
 			}
 
-			#buttons {
+			#options {
 				width: 100%;
 			}
 
-			.button {
-				width: 90%;
-				margin: 5px 5%;
-				padding: 2px 10px;
+			.optionGuide {
+				width: 10%;
+				height: 32px;
 
-				border: solid 3px black;
-				border-radius: 10px;
+				line-height: 32px;
+				font-weight: 600;
+				text-align: center;
+			}
 
-				background-color: rgb(241, 202, 124);
+			.option {
+				width: 100%;
+				height: 32px;
+				margin-bottom: 4px;
+
+				border: solid 1px #ccc;
+				border-radius: 4px;
+				background-color: #f3f2ff;
+
+				line-height: 32px;
+				color: black;
+				text-align: center;
+			}
+
+			.option.selected {
+				background-color: #e9e8ff;
+				color: #6758ff;
+			}
+
+			#button {
+				width: 80%;
+				height: 32px;
+				margin: 0 auto;
+
+				border: solid 1px white;
+				border-radius: 4px;
+				background-color: #6758ff;
+
+				line-height: 32px;
+				color: white;
+				text-align: center;
 			}
 
 			.disable {
@@ -76,121 +109,128 @@
 	<body>
 		<div class="container">
 			<div id="dialog" class="dialogWrapper">
+				<img src="./hansCard.jpg" alt="hans" />
 				<header>
 					<h3 id="name"></h3>
 					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://zep.us/images/svg/close__icon.svg" /></div>
 				</header>
-				<hr>
-				<div class="contents">
-					<p id="text"></p>
-					<div id="buttons"></div>
+				<p id="text"></p>
+				<div id="optionBox" class="Box none">
+					<div class="optionGuide">>></div>
+					<div id="options"></div>
+				</div>
+				<div class="Box">
+					<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
 			const ACTION_TYPE = {
-			  	1: 'SINGLE_DIALOG',
-			  	2: 'INTERACTION_DIALOG',
-  			  	3: 'MULTI_BUTTON_DIALOG',
+				1: 'NORMAL',
+				2: 'INPUT',
+				3: 'IMAGE',
 			};
 
 			let dialogFlow = null;
 			let condition = null;
+			let selectedOptionNo = -1;
+			let selectedLink = -11;
+			let selectedCheckListNo = -1;
 
 			window.addEventListener("message", (e) => {
 				const type = ACTION_TYPE[e.data.type];
 				condition =  e.data.condition;
 				dialogFlow =  e.data.dialogFlow;
 
-				document.getElementById("name").innerText = dialogFlow[0].name;
-				document.getElementById("text").innerText = dialogFlow[0].text;
+				if (type == ACTION_TYPE[1]){
+					document.getElementById("name").innerText = dialogFlow[0].name;
+					document.getElementById("text").innerText = dialogFlow[0].text;
 
-				if(dialogFlow[0].button || dialogFlow[0].buttons){
-
-					if (type == 'INTERACTION_DIALOG') {
-						document.getElementById("buttons").innerHTML =
-							`<button 
-								class="button"
-								onclick="javascript:handleNextButton(1, ${dialogFlow.length})"
-							>
-								${dialogFlow[0].button}
-							</button>`;
-					} else if (type == 'MULTI_BUTTON_DIALOG') {
-						document.getElementById("buttons").innerHTML = '';
-
-						dialogFlow[0].buttons.forEach(bi => {
-							if(bi.condition){
-								if(condition.includes(bi.condition)) {
-									document.getElementById("buttons").innerHTML += 
-										`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.conditionText}</button>`;
-								} else {
-									document.getElementById("buttons").innerHTML += 
-										`<button class="disable button">${bi.text}</button>`;
-								}
-							} else {
-								document.getElementById("buttons").innerHTML += 
-									`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.text}</button>`;
-							}
-							
-						})
-					} else {
-						document.getElementById("buttons").innerHTML =
-							`<button class="button" onclick="javascript:handleCloseButton()">${dialogFlow[0].button}</button>`;
+					if(dialogFlow[0].options){
+						document.getElementById("optionBox").classList.remove('none');
+						setOptions(0);
 					}
+				} else if (type == ACTION_TYPE[2]) {
+
+				} else if (type == ACTION_TYPE[3]) {
+
 				}
 			});
+
+			const setOptions = (flowNo) => {
+				let Options = document.getElementById("options");
+				Options.innerHTML = '';
+
+				dialogFlow[flowNo].options.forEach(oi => {
+					const listNo = oi.link == -3 ? oi.listNo : -1;
+
+					if(oi.condition){
+						if(condition.includes(oi.condition)) {
+							Options.innerHTML += 
+								`<button 
+									id="option${oi.number}"
+									class="option" 
+									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+								>
+									${oi.conditionText}
+								</button>`;
+						} else {
+							Options.innerHTML += 
+								`<button class="option disable">${oi.text}</button>`;
+						}
+					} else {
+						Options.innerHTML += 
+							`<button
+								id="option${oi.number}"
+								class="option"
+								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+							>
+								${oi.text}
+							</button>`;
+					}
+				});
+			}
 
 			const handleCloseButton = () => {
 				window.parent.postMessage({type: "closeDialog"}, "*");
 			}
 
-			const handleNextButton = (order, total) => {
-				if(order >= total) {
-					handleCloseButton();
-				} else {
-					document.getElementById("name").innerText = dialogFlow[order].name;
-					document.getElementById("text").innerText = dialogFlow[order].text;
-
-					if(dialogFlow[order].button){
-						const okButton = 
-							`<button
-								class="button"
-								onclick="javascript:handleNextButton(${order + 1}, ${dialogFlow.length})"
-							>
-								${dialogFlow[order].button}
-							</button>`;
-						document.getElementById("buttons").innerHTML = okButton;
-					}
+			const handleSelectOption = (optNo, link, listNo = -1) => {
+				if(selectedOptionNo != -1){
+					document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
 				}
+				
+				selectedOptionNo = optNo;
+				selectedLink = link;
+				selectedCheckListNo = listNo;
+				document.getElementById(`option${optNo}`).classList.add("selected");
+				document.getElementById("button").classList.remove("disable");
 			}
 
-			const handleLinkButton = (link) => {
-				if (link == -1){
+			const handleButton = () => {
+				if (selectedLink == -1){
 					handleCloseButton();
-				} else if(link == -4) {
-					window.parent.postMessage({type: "backToSeat"}, "*");
+				} else if(selectedLink == -2) {
+					window.parent.postMessage({type: "speedUp"}, "*");
+				} else if(selectedLink == -3) {
+					window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
+				// } else if(selectedLink == -4) {
+				// 	window.parent.postMessage({type: "backToSeat"}, "*");
 				} else {
-					document.getElementById("name").innerText = dialogFlow[link].name;
-					document.getElementById("text").innerText = dialogFlow[link].text;
-					document.getElementById("buttons").innerHTML = '';
-
-					if(dialogFlow[link].buttons){
-						dialogFlow[link].buttons.forEach(bi => {
-							if(bi.condition){
-								if(condition.includes(bi.condition)) {
-									document.getElementById("buttons").innerHTML += 
-										`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.conditionText}</button>`;
-								} else {
-									document.getElementById("buttons").innerHTML += 
-										`<button class="disable button">${bi.text}</button>`;
-								}
-							} else {
-								document.getElementById("buttons").innerHTML += 
-									`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.text}</button>`;
-							}
-						})
+					document.getElementById("name").innerText = dialogFlow[selectedLink].name;
+					document.getElementById("text").innerText = dialogFlow[selectedLink].text;
+					
+					if (dialogFlow[selectedLink].options) {
+						setOptions(selectedLink);
+					} else {
+						document.getElementById("optionBox").classList.add('none');
 					}
 				}
+				
+				selectedOptionNo = -1;
+				selectedLink = -11;
+				selectedCheckListNo = -1;
+				document.getElementById("button").classList.add("disable");
 			}
 		</script>
 	</body>
