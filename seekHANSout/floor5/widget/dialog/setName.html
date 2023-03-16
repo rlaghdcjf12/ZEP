@@ -1,0 +1,206 @@
+<html style="overflow: hidden">
+	<head>
+		<style type="text/css">
+			.container {
+				background-color: rgba(255, 255, 255, 0);
+
+				font-size: 14px;
+				color: black;
+			}
+
+			#dialog {
+				height: 85%;
+				padding: 8px;
+
+				border: solid 2px dimgray;
+				border-radius: 8px;
+				background-color: white;
+			}
+
+			header {
+				display: flex;
+			}
+
+			h3 {
+				margin: 0;
+			}
+
+			#closeButton {
+				margin-left: auto;
+
+				-webkit-user-select:none;
+				-moz-user-select:none;
+				-ms-user-select:none;
+				user-select:none
+			}
+
+			input {
+				width: 80%;
+				height: 32px;
+
+				margin-left: 10%;
+				margin-bottom: 8px;
+
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+
+			input:focus {
+				outline: none !important;
+				border: 1px solid #6758ff;
+			}
+
+			.Box {
+				width: 100%;
+				display: flex;
+				margin-top: 8px;
+			}
+
+			.none {
+				display: none;
+			}
+
+			#options {
+				width: 100%;
+			}
+
+			.optionGuide {
+				width: 10%;
+				height: 32px;
+
+				line-height: 32px;
+				font-weight: 600;
+				text-align: center;
+			}
+
+			.option {
+				width: 100%;
+				height: 32px;
+
+				border: solid 1px #ccc;
+				border-radius: 4px;
+				background-color: white;
+
+				line-height: 32px;
+				color: black;
+				text-align: center;
+			}
+
+			.option.selected {
+				background-color: #6758ff;
+				color: white;
+			}
+
+			#button {
+				width: 80%;
+				height: 32px;
+				margin: 0 auto;
+
+				border: solid 1px white;
+				border-radius: 4px;
+				background-color: #6758ff;
+
+				line-height: 32px;
+				color: white;
+				text-align: center;
+			}
+
+			.disable {
+				background-color: gray !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div id="dialog">
+				<header>
+					<h3 id="name">MS 쟝</h3>
+				</header>
+				<p id="text"></p>
+				<input
+					id="input"
+					onkeyup="checkInput()"
+					onkeypress="keyPress(event)"
+					placeholder="이름 혹은 닉네임을 입력해주세요!"
+				/>
+				<div id="optionBox" class="Box none">
+					<div class="optionGuide">>></div>
+					<div id="options"></div>
+				</div>
+				<div class="Box">
+					<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			let isSetName = false;
+			let selectedOptionNo = -1;
+
+			const questionText = '안녕하세요!! 전부터 진~짜 친해지고 싶었는데..!\n저희 서로 이름도 모르네요 😅\n저는 쟝입니다! 이름이 어떻게 되세요?';
+			const welcomeText = '님~! 😊 한스님이랑 같이 다니시는 것 많이 봤어요. 오늘은 한스님이 어디 가셨나봐요?';
+			const optionList = [
+				{
+					number: 0,
+					text: '안그래도 한스 이 녀석을 찾던 중이에요!',
+					link: -1,
+				},
+			]
+			const buttonText = document.getElementById("text").innerText = questionText;
+
+			const checkInput = () => {
+				let input = document.getElementById("input").value;
+				if (input != '' && input != null) {
+					document.getElementById("button").classList.remove("disable");
+				}
+				else if (!document.getElementById("button").classList.contains("disable")) {
+					document.getElementById("button").classList.add("disable");
+				}
+			}
+
+			const keyPress = (e) => {
+				if (e.keyCode == 13) handleButton();
+			}
+
+			const handleButton = () => {
+				if (!isSetName) setName();
+				else startDialog();
+			}
+
+			const setName = () => {
+				let input = document.getElementById("input").value;
+				if (!document.getElementById("button").classList.contains("disable")) {
+					document.getElementById("text").innerText = '아! ' + input + welcomeText;	
+					document.getElementById("input").remove();
+					document.getElementById("button").classList.add("disable");
+
+					document.getElementById("optionBox").classList.remove("none");
+					const optionButton = 
+						`<button
+							id="option${optionList[0].number}"
+							class="option"
+							onclick="javascript:handleSelectOption(${optionList[0].number})"
+						>
+							${optionList[0].text}
+						</button>`;
+					document.getElementById("options").innerHTML += optionButton;
+
+					isSetName = true;
+					window.parent.postMessage({type: "setName", name: input}, "*");
+				}
+			}
+
+			const handleSelectOption = (optNo) => {
+				selectedOptionNo = optNo;
+				document.getElementById(`option${optNo}`).classList.add("selected");
+				document.getElementById("button").classList.remove("disable");
+			}
+			
+			const startDialog = () => {
+				if (!document.getElementById("button").classList.contains("disable")) {
+					console.log('haha');
+					window.parent.postMessage({type: "startDialog"}, "*");
+				}
+			}
+		</script>
+	</body>
+</html>

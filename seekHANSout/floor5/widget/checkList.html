@@ -1,0 +1,54 @@
+<html style="overflow: hidden">
+	<head>
+		<style type="text/css">
+			.container {
+				background-color: rgba(255, 255, 255, 0);
+				font-size: 14px;
+			}
+
+			#todoList {
+				background-color: rgb(241, 202, 124, 0.7);
+				padding: 2px 4px;
+
+				border: solid 1px rgb(241, 202, 124, 0.7);
+				border-radius: 10px;
+			}
+
+			.web {
+				font-size: 18px;
+			}
+
+			.contents {
+				margin: 2px 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div id="todoList">
+				<div class="contents">
+					<strong>TO-DO</strong>
+				</div>
+				<div class="contents" id="text"></div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			let listNo = 0;
+
+			window.addEventListener("message", (e) => {
+				const { isMobile  } = e.data;
+				listNo = e.data.listNo > listNo ? e.data.listNo : listNo;
+				document.getElementById("text").innerText = todoList[Number(listNo)];
+
+				if(!isMobile) document.getElementById("todoList").classList += "web";
+			});
+
+			const todoList = [
+				'MS 쟝과 대화', //0
+				'휴게공간 사람들과 대화', //1
+				'화장실에서 한스 찾기', //2
+				'한스 자리로 이동' //3
+			]
+		</script>
+	</body>
+</html>

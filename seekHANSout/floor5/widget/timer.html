@@ -1,0 +1,84 @@
+<html style="overflow: hidden">
+	<head>
+		<style type="text/css">
+			.container {
+				background-color: rgba(255, 255, 255, 0);
+				font-size: 14px;
+			}
+
+			#timer {
+				background-color: rgb(241, 202, 124, 0.7);
+				padding: 2px 4px;
+
+				border: solid 1px rgb(241, 202, 124, 0.7);
+				border-radius: 10px;
+			}
+
+			.web {
+				display: flex;
+				justify-content: space-between;
+				font-size: 18px;
+			}
+
+			.contents {
+				margin: 2px 0;
+			}
+
+			.blink {
+				color: red;
+				font-weight: 600;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div id="timer">
+				<div class="contents">
+					<strong>남은 시간</strong>
+				</div>
+				<div class="contents" id="time">-</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			const getTimer = (timer) => {
+				var minutes = Math.floor((timer) / 60);
+				var seconds = Math.floor(timer - minutes * 60);
+
+				if (minutes < 10) {
+					minutes = "0" + minutes;
+				}
+				if (seconds < 10) {
+					seconds = "0" + seconds;
+				}
+				return minutes + ":" + seconds;
+			}
+
+			var timerInterval;
+			var timer = 0;
+
+			window.addEventListener("message", function (e) {
+				const { isMobile } = e.data;
+				timer = e.data.timer;
+
+				clearInterval(timerInterval);
+				timerInterval = setInterval(function () {
+					if (--timer >= 0) {
+						document.getElementById("time").innerText = getTimer(timer);
+
+						if (timer <= 300){
+							if(timer % 2 == 0)
+								document.getElementById("time").className = "blink";
+							else
+								document.getElementById("time").className = "";
+						}
+					} else {
+						clearInterval(timerInterval);
+						window.parent.postMessage({type: "timeOut"}, "*");
+					}
+				}, 1000);
+				document.getElementById("time").innerText = getTimer(timer);
+				if(!isMobile) document.getElementById("timer").classList += "web";
+			});
+		</script>
+	</body>
+</html>

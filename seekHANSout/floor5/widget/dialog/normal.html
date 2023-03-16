@@ -1,0 +1,234 @@
+<html style="overflow: hidden">
+	<head>
+		<style type="text/css">
+			.container {
+				background-color: rgba(255, 255, 255, 0);
+				font-size: 14px;
+			}
+
+			#dialog {
+				height: 85%;
+				padding: 5px;
+
+				background-color: rgb(255, 255, 255);
+
+				font-size: 14px;
+				color: black;
+			}
+
+			.dialogWrapper {
+				height: 100%;
+				padding: 20px;
+
+				border: solid 3px dimgray;
+				border-radius: 10px;
+				background-color: white;
+			}
+
+			header {
+				display: flex;
+			}
+
+			h3 {
+				margin: 0;
+			}
+
+			.closeButton {
+				margin-left: auto;
+				font-size: 20px;
+				font-weight: 600;
+
+				-webkit-user-select:none;
+				-moz-user-select:none;
+				-ms-user-select:none;
+				user-select:none
+			}
+
+			.closeButton img {
+				width: 24px;
+				height: 24px;
+			}
+
+			.Box {
+				width: 100%;
+				display: flex;
+				margin-top: 8px;
+			}
+
+			#options {
+				width: 100%;
+			}
+
+			.optionGuide {
+				width: 10%;
+				height: 32px;
+
+				line-height: 32px;
+				font-weight: 600;
+				text-align: center;
+			}
+
+			.option {
+				width: 100%;
+				height: 32px;
+
+				border: solid 1px #ccc;
+				border-radius: 4px;
+				background-color: white;
+
+				line-height: 32px;
+				color: black;
+				text-align: center;
+			}
+
+			.option.selected {
+				background-color: #6758ff;
+				color: white;
+			}
+
+			#button {
+				width: 80%;
+				height: 32px;
+				margin: 0 auto;
+
+				border: solid 1px white;
+				border-radius: 4px;
+				background-color: #6758ff;
+
+				line-height: 32px;
+				color: white;
+				text-align: center;
+			}
+
+			.disable {
+				background-color: gray !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div id="dialog" class="dialogWrapper">
+				<header>
+					<h3 id="name"></h3>
+					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://zep.us/images/svg/close__icon.svg" /></div>
+				</header>
+				<p id="text"></p>
+				<div id="optionBox" class="Box none">
+					<div class="optionGuide">>></div>
+					<div id="options"></div>
+				</div>
+				<div class="Box">
+					<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			const ACTION_TYPE = {
+				1: 'NORMAL',
+				2: 'INPUT',
+				3: 'IMAGE',
+			};
+
+			let dialogFlow = null;
+			let condition = null;
+			let selectedOptionNo = -1;
+			let selectedLink = -11;
+			let selectedCheckListNo = -1;
+
+			window.addEventListener("message", (e) => {
+				const type = ACTION_TYPE[e.data.type];
+				condition =  e.data.condition;
+				dialogFlow =  e.data.dialogFlow;
+
+				if (type == ACTION_TYPE[1]){
+					document.getElementById("name").innerText = dialogFlow[0].name;
+					document.getElementById("text").innerText = dialogFlow[0].text;
+
+					if(dialogFlow[0].options){
+						document.getElementById("optionBox").classList.remove('none');
+						setOptions(0);
+					}
+				} else if (type == ACTION_TYPE[2]) {
+
+				} else if (type == ACTION_TYPE[3]) {
+
+				}
+			});
+
+			const setOptions = (flowNo) => {
+				let Options = document.getElementById("options");
+				Options.innerHTML = '';
+
+				dialogFlow[flowNo].options.forEach(oi => {
+					const listNo = oi.link == -3 ? oi.listNo : -1;
+
+					if(oi.condition){
+						if(condition.includes(oi.condition)) {
+							Options.innerHTML += 
+								`<button 
+									id="option${oi.number}"
+									class="option" 
+									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+								>
+									${oi.conditionText}
+								</button>`;
+						} else {
+							Options.innerHTML += 
+								`<button class="option disable">${oi.text}</button>`;
+						}
+					} else {
+						Options.innerHTML += 
+							`<button
+								id="option${oi.number}"
+								class="option"
+								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+							>
+								${oi.text}
+							</button>`;
+					}
+				});
+			}
+
+			const handleCloseButton = () => {
+				window.parent.postMessage({type: "closeDialog"}, "*");
+			}
+
+			const handleSelectOption = (optNo, link, listNo = -1) => {
+				if(selectedOptionNo != -1){
+					document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
+				}
+				
+				selectedOptionNo = optNo;
+				selectedLink = link;
+				selectedCheckListNo = listNo;
+				document.getElementById(`option${optNo}`).classList.add("selected");
+				document.getElementById("button").classList.remove("disable");
+			}
+
+			const handleButton = () => {
+				if (selectedLink == -1){
+					handleCloseButton();
+				} else if(selectedLink == -2) {
+					window.parent.postMessage({type: "speedUp"}, "*");
+				} else if(selectedLink == -3) {
+					window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
+				// } else if(selectedLink == -4) {
+				// 	window.parent.postMessage({type: "backToSeat"}, "*");
+				} else {
+					document.getElementById("name").innerText = dialogFlow[selectedLink].name;
+					document.getElementById("text").innerText = dialogFlow[selectedLink].text;
+					
+					if (dialogFlow[selectedLink].options) {
+						setOptions(selectedLink);
+					} else {
+						document.getElementById("optionBox").classList.add('none');
+					}
+				}
+				
+				selectedOptionNo = -1;
+				selectedLink = -11;
+				selectedCheckListNo = -1;
+			}
+		</script>
+	</body>
+</html>

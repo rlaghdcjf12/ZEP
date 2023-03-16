@@ -1,0 +1,192 @@
+<html style="overflow: hidden">
+	<head>
+		<style type="text/css">
+			#dialog {
+				height: 85%;
+				padding: 5px;
+
+				background-color: rgba(255, 255, 255, 0);
+
+				font-size: 14px;
+				color: black;
+			}
+
+			.dialogWrapper {
+				height: 100%;
+				padding: 10px;
+
+				border: solid 3px black;
+				border-radius: 10px;
+				background-color: white;
+			}
+
+			header {
+				display: flex;
+			}
+
+			h3 {
+				margin: 0;
+			}
+
+			.closeButton {
+				margin-left: auto;
+				font-size: 20px;
+				font-weight: 600;
+
+				-webkit-user-select:none;
+				-moz-user-select:none;
+				-ms-user-select:none;
+				user-select:none
+			}
+
+			.closeButton img {
+				width: 24px;
+				height: 24px;
+			}
+
+			hr {
+				width: 99%;
+			}
+
+			#buttons {
+				width: 100%;
+			}
+
+			.button {
+				width: 90%;
+				margin: 5px 5%;
+				padding: 2px 10px;
+
+				border: solid 3px black;
+				border-radius: 10px;
+
+				background-color: rgb(241, 202, 124);
+			}
+
+			.disable {
+				background-color: gray !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dialog" class="container">
+			<div class="dialogWrapper">
+				<header>
+					<h3 id="name"></h3>
+					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://cdn-icons-png.flaticon.com/512/458/458595.png?w=360" /></div>
+				</header>
+				<hr>
+				<div class="contents">
+					<p id="text"></p>
+					<div id="buttons"></div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			const ACTION_TYPE = {
+			  	1: 'SINGLE_DIALOG',
+			  	2: 'INTERACTION_DIALOG',
+  			  	3: 'MULTI_BUTTON_DIALOG',
+			};
+
+			let dialogFlow = null;
+			let condition = null;
+
+			window.addEventListener("message", (e) => {
+				const type = ACTION_TYPE[e.data.type];
+				condition =  e.data.condition;
+				dialogFlow =  e.data.dialogFlow;
+
+				document.getElementById("name").innerText = dialogFlow[0].name;
+				document.getElementById("text").innerText = dialogFlow[0].text;
+
+				if(dialogFlow[0].button || dialogFlow[0].buttons){
+
+					if (type == 'INTERACTION_DIALOG') {
+						document.getElementById("buttons").innerHTML =
+							`<button 
+								class="button"
+								onclick="javascript:handleNextButton(1, ${dialogFlow.length})"
+							>
+								${dialogFlow[0].button}
+							</button>`;
+					} else if (type == 'MULTI_BUTTON_DIALOG') {
+						document.getElementById("buttons").innerHTML = '';
+
+						dialogFlow[0].buttons.forEach(bi => {
+							if(bi.condition){
+								if(condition.includes(bi.condition)) {
+									document.getElementById("buttons").innerHTML += 
+										`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.conditionText}</button>`;
+								} else {
+									document.getElementById("buttons").innerHTML += 
+										`<button class="disable button">${bi.text}</button>`;
+								}
+							} else {
+								document.getElementById("buttons").innerHTML += 
+									`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.text}</button>`;
+							}
+							
+						})
+					} else {
+						document.getElementById("buttons").innerHTML =
+							`<button class="button" onclick="javascript:handleCloseButton()">${dialogFlow[0].button}</button>`;
+					}
+				}
+			});
+
+			const handleCloseButton = () => {
+				window.parent.postMessage({type: "closeDialog"}, "*");
+			}
+
+			const handleNextButton = (order, total) => {
+				if(order >= total) {
+					handleCloseButton();
+				} else {
+					document.getElementById("name").innerText = dialogFlow[order].name;
+					document.getElementById("text").innerText = dialogFlow[order].text;
+
+					if(dialogFlow[order].button){
+						const okButton = 
+							`<button
+								class="button"
+								onclick="javascript:handleNextButton(${order + 1}, ${dialogFlow.length})"
+							>
+								${dialogFlow[order].button}
+							</button>`;
+						document.getElementById("buttons").innerHTML = okButton;
+					}
+				}
+			}
+
+			const handleLinkButton = (link) => {
+				if (link == -1){
+					handleCloseButton();
+				} else if(link == -4) {
+					window.parent.postMessage({type: "backToSeat"}, "*");
+				} else {
+					document.getElementById("name").innerText = dialogFlow[link].name;
+					document.getElementById("text").innerText = dialogFlow[link].text;
+					document.getElementById("buttons").innerHTML = '';
+
+					if(dialogFlow[link].buttons){
+						dialogFlow[link].buttons.forEach(bi => {
+							if(bi.condition){
+								if(condition.includes(bi.condition)) {
+									document.getElementById("buttons").innerHTML += 
+										`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.conditionText}</button>`;
+								} else {
+									document.getElementById("buttons").innerHTML += 
+										`<button class="disable button">${bi.text}</button>`;
+								}
+							} else {
+								document.getElementById("buttons").innerHTML += 
+									`<button class="button" onclick="javascript:handleLinkButton(${bi.link})">${bi.text}</button>`;
+							}
+						})
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
