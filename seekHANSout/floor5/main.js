@@ -201,6 +201,11 @@ const dialogType = {
   3: 'image',
 };
 
+const dialogSize = {
+  0: [30, 10, 30, 10, 35, 25, 35, 25],
+  3: [20, 5, 20, 5, 20, 30, 20, 30],
+};
+
 const openDialog = (type, player, dialogId) => {
   if (type == 0 && !player.tag.condition.includes('noName')) {
     type = 1; // 이름 설정 후 type 보정
@@ -208,9 +213,13 @@ const openDialog = (type, player, dialogId) => {
 
   if (player.tag.widgetDialog == null) {
     player.tag.widgetDialogType = dialogType[type];
-    player.tag.widgetDialog = player.isMobile
-      ? player.showWidgetResponsive(`widget/dialog/${dialogType[type]}.html`, 30, 10, 30, 10)
-      : player.showWidgetResponsive(`widget/dialog/${dialogType[type]}.html`, 35, 25, 35, 25);
+    player.tag.widgetDialog = player.showWidgetResponsive(
+      `widget/dialog/${dialogType[type]}.html`,
+      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 0 : 4],
+      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 1 : 5],
+      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 2 : 6],
+      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 3 : 7]
+    );
     player.tag.widgetDialog.onMessage.Add(function (player, msg) {
       if (msg.type == 'closeDialog') {
         closeDialog(player);
