@@ -69,6 +69,12 @@ App.addOnLocationTouched('finish', function (player) {
     player.tag.widgetTimer = null;
   }
 });
+App.addOnLocationTouched('startLimit', function (player) {
+  if (player.tag.condition.includes('noName')) {
+    player.spawnAtLocation('startLimitRespawn', 4);
+    openToast(player, '쟝을 먼저 만나보자.');
+  }
+});
 
 App.onUpdate.Add(function (dt) {
   // for (let i in players) {
@@ -249,17 +255,19 @@ const closeDialog = (player) => {
 };
 
 const openToast = (player, msg, timer = 2) => {
-  player.tag.widgetToast = player.isMobile
-    ? player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35)
-    : player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35);
+  if (player.tag.widgetToast == null) {
+    player.tag.widgetToast = player.isMobile
+      ? player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35)
+      : player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35);
 
-  player.tag.widgetToast.sendMessage({ msg, timer });
-  player.tag.widgetToast.onMessage.Add(function (player, msg) {
-    if (msg.type == 'toastOut') {
-      player.tag.widgetToast.destroy();
-      player.tag.widgetToast = null;
-    }
-  });
+    player.tag.widgetToast.sendMessage({ msg, timer });
+    player.tag.widgetToast.onMessage.Add(function (player, msg) {
+      if (msg.type == 'toastOut') {
+        player.tag.widgetToast.destroy();
+        player.tag.widgetToast = null;
+      }
+    });
+  }
 };
 
 const speedUp = (player) => {
