@@ -40,7 +40,8 @@
 				listNo = e.data.listNo > listNo ? e.data.listNo : listNo;
 				document.getElementById("text").innerText = todoList[Number(listNo)];
 
-				if(!isMobile) document.getElementById("todoList").classList += "web";
+				if(!isMobile && !document.getElementById("todoList").classList.contains("web"))
+					document.getElementById("todoList").classList.add("web");
 			});
 
 			const todoList = [

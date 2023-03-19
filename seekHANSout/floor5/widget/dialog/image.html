@@ -77,12 +77,13 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			let condition, imageList, nextButtonText, imgNo;
+			let condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
 
 			window.addEventListener("message", (e) => {
 				condition =  e.data.condition;
 				imageList = IMAGE_FLOW[e.data.dialogId].imageList;
 				nextButtonText = IMAGE_FLOW[e.data.dialogId].nextButtonText ? IMAGE_FLOW[e.data.dialogId].nextButtonText : '다음';
+				chkListNo = IMAGE_FLOW[e.data.dialogId].chkListNo ? IMAGE_FLOW[e.data.dialogId].chkListNo : -1;
 
 				init();
 			});
@@ -97,8 +98,9 @@
 
 			const init = () => {
 				imgNo = 0;
+				isChkLast = false;
 				setImage(imgNo);
-				if(imageList.length < 2)
+				if(imageList.length == 1)
 					document.getElementById('nextButton').remove();
 				else
 					document.getElementById('nextButton').innerHTML = nextButtonText;
@@ -106,16 +108,25 @@
 
 			const nextImage = () => {
 				imgNo += 1;
-				if (imgNo >= imageList.length) imgNo = 0;
+				if (imgNo == imageList.length - 1)
+					isChkLast = true;
+				else if (imgNo >= imageList.length)
+					imgNo = 0;
+
 				setImage(imgNo);
 			}
 
 			const handleCloseButton = () => {
-				window.parent.postMessage({type: "closeDialog"}, "*");
+				if (isChkLast && chkListNo != -1)
+					window.parent.postMessage({type: "setCheckList", listNo: chkListNo}, "*");
+				else {
+					window.parent.postMessage({type: "closeDialog"}, "*");
+				}
 			}
 
 			const IMAGE_FLOW = [
 				{	
+					chkListNo: 3,
 					nextButtonText: '뒤집기',
 					imageList: [
 						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardOnToilet.jpg?raw=true",

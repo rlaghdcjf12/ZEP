@@ -138,8 +138,8 @@ const initCheckList = (player) => {
 
 const setCheckList = (player, listNo) => {
   player.tag.widgetCheckList.sendMessage({
-    isMobile: player.isMobile,
     listNo,
+    isMobile: player.isMobile,
   });
 };
 
