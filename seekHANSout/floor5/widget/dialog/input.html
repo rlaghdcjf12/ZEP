@@ -3,63 +3,55 @@
 		<style type="text/css">
 			.container {
 				background-color: rgba(255, 255, 255, 0);
+				font-size: 14px;
+			}
+
+			#dialog {
+				height: 95%;
+				padding: 5px;
+
+				background-color: rgb(255, 255, 255);
 
 				font-size: 14px;
 				color: black;
 			}
 
-			#dialog {
-				height: 85%;
-				padding: 8px;
+			.dialogWrapper {
+				height: 100%;
+				padding: 20px;
 
-				border: solid 2px dimgray;
-				border-radius: 8px;
+				border: solid 3px dimgray;
+				border-radius: 10px;
 				background-color: white;
 			}
 
-			header {
+			.imageWrapper {
+				width: min(80vw, 400px);
+				height: min(80vw, 400px);
+
+				margin: 0 auto;
+			}
+
+			img {
+				width: 100%;
+				height: 100%;
+			}
+
+			.box {
+				width: 100%;
+				margin-top: 4px;
+			}
+
+			.flex {
 				display: flex;
 			}
 
-			h3 {
-				margin: 0;
-			}
-
-			#closeButton {
+			.onRight {
 				margin-left: auto;
-
-				-webkit-user-select:none;
-				-moz-user-select:none;
-				-ms-user-select:none;
-				user-select:none
 			}
 
-			input {
-				width: 100%;
-				height: 32px;
-
-				margin-bottom: 8px;
-
-				border: 1px solid #ccc;
-				border-radius: 4px;
-			}
-
-			input:focus {
-				outline: none !important;
-				border: 1px solid #6758ff;
-			}
-
-			.Box {
-				display: flex;
-				margin-top: 8px;
-			}
-
-			.none {
-				display: none;
-			}
-
-			#button {
-				width: 100%;
+			.button {
+				width: 72px;
 				height: 32px;
 
 				border: solid 1px white;
@@ -70,82 +62,78 @@
 				color: white;
 				text-align: center;
 			}
-
-			#button.disable {
-				background-color: gray !important;
-			}
-
-			.options {
-
-			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<div id="dialog">
-				<img src="./hansCard.jpg" alt="hans" />
-				<header>
-					<h3 id="name">MS 쟝</h3>
-					<!-- <div onclick="javascript:handleCloseButton()" id="closeButton" class="none"><img src="https://zep.us/images/svg/close__icon.svg" /></div> -->
-				</header>
-				<p id="text"></p>
-				<input
-					id="input"
-					onkeyup="checkInput()"
-					onkeypress="keyPress(event)"
-					placeholder="이름 혹은 닉네임을 입력해주세요!"
-				/>
-				<div class="Box none">
-					<div>>></div>
-					<div id="options"></div>
-				</div>
-				<div class="Box">
-					<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>
+			<div id="dialog" class="dialogWrapper">
+				<div id="imageBox"></div>
+				<div class="flex box">
+					<div class="flex onRight ">
+						<div id="nextButton" class="button" onclick="javascript:nextImage()"></div>
+						<div class="button" onclick="javascript:handleCloseButton()">확인</div>
+					</div>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
-			const isSetName = false;
+			let type, condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
+			// input 위에 이미지 넣을 지, 텍스트만 넣을 지 타입으로 확인하고 분기
 
-			const questionText = '안녕하세요!! 전부터 진~짜 친해지고 싶었는데..!\n저희 서로 이름도 모르네요 😅\n저는 쟝입니다! 이름이 어떻게 되세요?';
-			const welcomeText = '님~! 😊 한스님이랑 같이 다니시는 것 많이 봤어요. 오늘은 한스님이 어디 가셨나봐요?';
-			const buttonText = '안그래도 한스 이 녀석을 찾던 중이에요!'
+			window.addEventListener("message", (e) => {
+				condition =  e.data.condition;
+				imageList = IMAGE_FLOW[e.data.dialogId].imageList;
+				nextButtonText = IMAGE_FLOW[e.data.dialogId].nextButtonText ? IMAGE_FLOW[e.data.dialogId].nextButtonText : '다음';
+				chkListNo = IMAGE_FLOW[e.data.dialogId].chkListNo ? IMAGE_FLOW[e.data.dialogId].chkListNo : -1;
 
-			document.getElementById("text").innerText = questionText;
-
-			const checkInput = () => {
-				let input = document.getElementById("input").value;
-				if (input != '' && input != null) {
-					document.getElementById("button").classList.remove("disable");
-				}
-				else if (!document.getElementById("button").classList.contains("disable")) {
-					document.getElementById("button").classList.add("disable");
-				}
-			}
-
-			const keyPress = (e) => {
-				if (e.keyCode == 13) handleSetName();
-			}
-
-			const handleButton = () => {
-				if (!isSetName) setName();
-				else startDialog();
-			}
-
-			const setName = () => {
-				let input = document.getElementById("input").value;
-				if (!document.getElementById("button").classList.contains("disable")) {
-					document.getElementById("text").innerText = '아! ' + input + welcomeText;
-					document.getElementById("input").remove();
-					// document.getElementById("closeButton").classList.remove("none");
-					window.parent.postMessage({type: "setName", name: input}, "*");
-					isSetName = true;
-				}
-			}
+				init();
+			});
 			
-			const startDialog = () => {
-				window.parent.postMessage({type: "startDialog"}, "*");
+			const setImage = (no) => {
+				const IMG = `
+					<div class="imageWrapper">
+						<img src="${imageList[no]}" alt="hansCardImage"/>
+					</div>`;
+				document.getElementById('imageBox').innerHTML = IMG;
 			}
+
+			const init = () => {
+				imgNo = 0;
+				isChkLast = false;
+				setImage(imgNo);
+				if(imageList.length == 1)
+					document.getElementById('nextButton').remove();
+				else
+					document.getElementById('nextButton').innerHTML = nextButtonText;
+			}
+
+			const nextImage = () => {
+				imgNo += 1;
+				if (imgNo == imageList.length - 1)
+					isChkLast = true;
+				else if (imgNo >= imageList.length)
+					imgNo = 0;
+
+				setImage(imgNo);
+			}
+
+			const handleCloseButton = () => {
+				if (isChkLast && chkListNo != -1)
+					window.parent.postMessage({type: "setCheckList", listNo: chkListNo}, "*");
+				else {
+					window.parent.postMessage({type: "closeDialog"}, "*");
+				}
+			}
+
+			const IMAGE_FLOW = [
+				{	
+					chkListNo: 3,
+					nextButtonText: '뒤집기',
+					imageList: [
+						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardOnToilet.jpg?raw=true",
+						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardMemo1.png?raw=true"]
+				},
+			]
 		</script>
 	</body>
 </html>
