@@ -77,9 +77,11 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			let condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
+			let isMobile, isWide, condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
 
 			window.addEventListener("message", (e) => {
+				isMobile = e.data.isMobile;
+				isWide = e.data.isWide;
 				condition =  e.data.condition;
 				imageList = IMAGE_FLOW[e.data.dialogId].imageList;
 				nextButtonText = IMAGE_FLOW[e.data.dialogId].nextButtonText ? IMAGE_FLOW[e.data.dialogId].nextButtonText : '다음';
@@ -104,6 +106,10 @@
 					document.getElementById('nextButton').remove();
 				else
 					document.getElementById('nextButton').innerHTML = nextButtonText;
+				
+				if(type == 'wide'){
+
+				}
 			}
 
 			const nextImage = () => {
@@ -124,15 +130,19 @@
 				}
 			}
 
-			const IMAGE_FLOW = [
-				{	
+			const IMAGE_FLOW = {
+				0: {	
 					chkListNo: 3,
 					nextButtonText: '뒤집기',
 					imageList: [
 						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardOnToilet.jpg?raw=true",
 						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardMemo1.png?raw=true"]
 				},
-			]
+				100: {
+					imageList: [
+						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/map.png?raw=true"]
+				}
+			}
 		</script>
 	</body>
 </html>
