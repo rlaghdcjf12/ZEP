@@ -32,6 +32,11 @@
 				margin: 0 auto;
 			}
 
+			.wide {
+				width: min(88vw, 600px) !important;
+				height: min(66vw, 450px) !important;
+			}
+
 			img {
 				width: 100%;
 				height: 100%;
@@ -77,10 +82,9 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			let isMobile, isWide, condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
+			let isWide, condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
 
 			window.addEventListener("message", (e) => {
-				isMobile = e.data.isMobile;
 				isWide = e.data.isWide;
 				condition =  e.data.condition;
 				imageList = IMAGE_FLOW[e.data.dialogId].imageList;
@@ -92,7 +96,7 @@
 			
 			const setImage = (no) => {
 				const IMG = `
-					<div class="imageWrapper">
+					<div id="imageWrapper" class="imageWrapper">
 						<img src="${imageList[no]}" alt="hansCardImage"/>
 					</div>`;
 				document.getElementById('imageBox').innerHTML = IMG;
@@ -107,8 +111,8 @@
 				else
 					document.getElementById('nextButton').innerHTML = nextButtonText;
 				
-				if(type == 'wide'){
-
+				if(isWide){
+					document.getElementById('imageWrapper').classList.add('wide');
 				}
 			}
 
