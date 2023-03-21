@@ -26,8 +26,8 @@
 			}
 
 			.imageWrapper {
-				width: min(80vw, 400px);
-				height: min(80vw, 400px);
+				width: min(80vw, 320px);
+				height: min(80vw, 320px);
 
 				margin: 0 auto;
 			}
@@ -62,76 +62,124 @@
 				color: white;
 				text-align: center;
 			}
+			
+			#answer {
+				width: 80%;
+				height: 32px;
+
+				margin: 12px 10% 8px 10%;
+
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+
+			#answer:focus {
+				outline: none !important;
+				border: 1px solid #6758ff;
+			}
+
+			#wrongText {
+				margin: 2px auto;
+
+				text-align: center;
+				font-size: 12px;
+				color: red;
+			}
+
+			.disable {
+				background-color: gray !important;
+			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
 			<div id="dialog" class="dialogWrapper">
-				<div id="imageBox"></div>
+				<div id="contents"></div>
+				<div>
+					<input
+						id="answer"
+						onkeyup="checkInput()"
+						onkeypress="keyPress(event)"
+					/>
+					<p id="wrongText"></p>
+				</div>
 				<div class="flex box">
 					<div class="flex onRight ">
-						<div id="nextButton" class="button" onclick="javascript:nextImage()"></div>
-						<div class="button" onclick="javascript:handleCloseButton()">확인</div>
+						<div id="confirm" class="button disable" onclick="javascript:handleConfirmButton()">확인</div>
+						<div class="button" onclick="javascript:handleCloseButton()">취소</div>
 					</div>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
-			let type, condition, imageList, nextButtonText, imgNo, isChkLast, chkListNo;
-			// input 위에 이미지 넣을 지, 텍스트만 넣을 지 타입으로 확인하고 분기
+			let condition, inputInfo, isChkLast, chkListNo;
 
 			window.addEventListener("message", (e) => {
-				condition =  e.data.condition;
-				imageList = IMAGE_FLOW[e.data.dialogId].imageList;
-				nextButtonText = IMAGE_FLOW[e.data.dialogId].nextButtonText ? IMAGE_FLOW[e.data.dialogId].nextButtonText : '다음';
-				chkListNo = IMAGE_FLOW[e.data.dialogId].chkListNo ? IMAGE_FLOW[e.data.dialogId].chkListNo : -1;
+				condition = e.data.condition;
+				inputInfo = INPUT_FLOW[e.data.dialogId];
 
-				init();
+				if (condition.includes(inputInfo.condition)) {
+					// window.parent.postMessage({type: "openToast", toast: inputInfo.conditionText}, "*");
+					document.getElementById('contents').innerHTML = inputInfo.conditionText;
+					return;
+				}
+
+				if (inputInfo.type == 'image') {
+					const IMG = `
+						<div class="imageWrapper">
+							<img src="${inputInfo.image}" alt="inputImage"/>
+						</div>`;
+					document.getElementById('contents').innerHTML = IMG;
+				} else if (inputInfo.type == 'text') {
+					// text일 경우
+				}
+				// chkListNo = IMAGE_FLOW[e.data.dialogId].chkListNo ? IMAGE_FLOW[e.data.dialogId].chkListNo : -1;
 			});
-			
-			const setImage = (no) => {
-				const IMG = `
-					<div class="imageWrapper">
-						<img src="${imageList[no]}" alt="hansCardImage"/>
-					</div>`;
-				document.getElementById('imageBox').innerHTML = IMG;
-			}
 
-			const init = () => {
-				imgNo = 0;
-				isChkLast = false;
-				setImage(imgNo);
-				if(imageList.length == 1)
-					document.getElementById('nextButton').remove();
-				else
-					document.getElementById('nextButton').innerHTML = nextButtonText;
-			}
-
-			const nextImage = () => {
-				imgNo += 1;
-				if (imgNo == imageList.length - 1)
-					isChkLast = true;
-				else if (imgNo >= imageList.length)
-					imgNo = 0;
-
-				setImage(imgNo);
-			}
-
-			const handleCloseButton = () => {
-				if (isChkLast && chkListNo != -1)
-					window.parent.postMessage({type: "setCheckList", listNo: chkListNo}, "*");
-				else {
-					window.parent.postMessage({type: "closeDialog"}, "*");
+			const checkInput = () => {
+				let input = document.getElementById("answer").value;
+				if (input != '' && input != null) {
+					document.getElementById("confirm").classList.remove("disable");
+				}
+				else if (!document.getElementById("confirm").classList.contains("disable")) {
+					document.getElementById("confirm").classList.add("disable");
 				}
 			}
 
-			const IMAGE_FLOW = [
+			const keyPress = (e) => {
+				if (e.keyCode == 13) handleConfirmButton();
+			}
+
+			const handleConfirmButton = () => {
+				if (document.getElementById('answer').value == inputInfo.answer){
+					window.parent.postMessage({type: "openToast", toast: inputInfo.answerText}, "*");
+					
+					if (inputInfo.answerChkListNo)
+						window.parent.postMessage({type: "setCheckList", listNo: inputInfo.answerChkListNo}, "*");
+					if (inputInfo.condition)
+						window.parent.postMessage({type: "addCondition", condition: inputInfo.condition}, "*");
+					
+					handleCloseButton();
+				}
+				else {
+					document.getElementById('wrongText').innerText = inputInfo.wrongText;
+				}
+			}
+
+			const handleCloseButton = () => {
+				window.parent.postMessage({type: "closeDialog"}, "*");
+			}
+
+			const INPUT_FLOW = [
 				{	
-					chkListNo: 3,
-					nextButtonText: '뒤집기',
-					imageList: [
-						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardOnToilet.jpg?raw=true",
-						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardMemo1.png?raw=true"]
+					type: 'image',
+					image: 'https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansNoteInSE.png?raw=true',
+					answer: '한스노트',
+					answerText: 'SE 보관함에서 한스노트를 꺼냈다.',
+					wrongText: '잘 생각해보자..',
+					answerChkListNo: 5,
+					condition: 'hansNote',
+					conditionText: '더이상 필요한 책이 없는 것 같다.'
 				},
 			]
 		</script>

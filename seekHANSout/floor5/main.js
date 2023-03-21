@@ -209,6 +209,8 @@ const dialogType = {
 
 const dialogSize = {
   0: [30, 10, 30, 10, 35, 25, 35, 25],
+  1: [30, 10, 30, 10, 35, 25, 35, 25],
+  2: [30, 10, 30, 10, 25, 25, 25, 25],
   3: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
 };
 
@@ -224,10 +226,10 @@ const openDialog = (type, player, dialogId) => {
     player.tag.widgetDialogType = dialogType[type];
     player.tag.widgetDialog = player.showWidgetResponsive(
       `widget/dialog/${dialogType[type]}.html`,
-      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 0 : !isWide ? 4 : 8],
-      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 1 : !isWide ? 5 : 9],
-      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 2 : !isWide ? 6 : 10],
-      dialogSize[type == 3 ? 3 : 0][player.isMobile ? 3 : !isWide ? 7 : 11]
+      dialogSize[type][player.isMobile ? 0 : !isWide ? 4 : 8],
+      dialogSize[type][player.isMobile ? 1 : !isWide ? 5 : 9],
+      dialogSize[type][player.isMobile ? 2 : !isWide ? 6 : 10],
+      dialogSize[type][player.isMobile ? 3 : !isWide ? 7 : 11]
     );
     player.tag.widgetDialog.onMessage.Add(function (player, msg) {
       if (msg.type == 'closeDialog') {
@@ -238,10 +240,12 @@ const openDialog = (type, player, dialogId) => {
         } else {
           openToast(player, TEXT_AGAIN_COFFEE, 2);
         }
-        closeDialog(player);
       } else if (msg.type == 'setCheckList') {
         setCheckList(player, msg.listNo);
-        closeDialog(player);
+      } else if (msg.type == 'openToast') {
+        openToast(player, msg.toast, 2);
+      } else if (msg.type == 'addCondition') {
+        player.tag.condition += msg.condition;
       }
 
       // if (msg.type == 'backToSeat') backToSeat(player);

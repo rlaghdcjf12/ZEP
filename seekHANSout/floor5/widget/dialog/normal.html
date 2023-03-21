@@ -213,10 +213,10 @@
 					handleCloseButton();
 				} else if(selectedLink == -2) {
 					window.parent.postMessage({type: "speedUp"}, "*");
+					handleCloseButton();
 				} else if(selectedLink == -3) {
 					window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
-				// } else if(selectedLink == -4) {
-				// 	window.parent.postMessage({type: "backToSeat"}, "*");
+					handleCloseButton();
 				} else {
 					document.getElementById("name").innerText = dialogFlow[selectedLink].name;
 					document.getElementById("text").innerText = dialogFlow[selectedLink].text;
