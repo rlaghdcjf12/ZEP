@@ -205,13 +205,15 @@ const dialogType = {
   1: 'normal',
   2: 'input',
   3: 'image',
+  4: 'hansNote',
 };
 
 const dialogSize = {
-  0: [30, 10, 30, 10, 35, 25, 35, 25],
-  1: [30, 10, 30, 10, 35, 25, 35, 25],
-  2: [30, 10, 30, 10, 25, 25, 25, 25],
+  0: [20, 5, 20, 5, 35, 25, 35, 25],
+  1: [20, 5, 20, 5, 35, 25, 35, 25],
+  2: [20, 5, 20, 5, 25, 25, 25, 25],
   3: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
+  4: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
 };
 
 const openDialog = (type, player, dialogId) => {
@@ -246,6 +248,8 @@ const openDialog = (type, player, dialogId) => {
         openToast(player, msg.toast, 2);
       } else if (msg.type == 'addCondition') {
         player.tag.condition += msg.condition;
+      } else if (msg.type == 'openHansNote') {
+        openNoteButton(player);
       }
 
       // if (msg.type == 'backToSeat') backToSeat(player);
@@ -273,7 +277,6 @@ const openToast = (player, msg, timer = 2) => {
       ? player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35)
       : player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35);
 
-    player.tag.widgetToast.sendMessage({ msg, timer });
     player.tag.widgetToast.onMessage.Add(function (player, msg) {
       if (msg.type == 'toastOut') {
         player.tag.widgetToast.destroy();
@@ -281,6 +284,7 @@ const openToast = (player, msg, timer = 2) => {
       }
     });
   }
+  player.tag.widgetToast.sendMessage({ msg, timer });
 };
 
 const speedUp = (player) => {
@@ -288,6 +292,18 @@ const speedUp = (player) => {
   player.tag.isSpeedUp = true;
   player.moveSpeed = 120;
   savePlayer(player);
+};
+
+const openNoteButton = (player) => {
+  player.tag.widgetNoteButton = player.isMobile
+    ? player.showWidget(`widget/noteButton.html`, 'middleleft', 85, 75)
+    : player.showWidget(`widget/noteButton.html`, 'middleleft', 90, 85);
+
+  player.tag.widgetNoteButton.onMessage.Add(function (player, msg) {
+    if (msg.type == 'clickButton') {
+      openDialog(4, player, 0);
+    }
+  });
 };
 
 // const bagDialog = (player) => {

@@ -7,7 +7,7 @@
 			}
 
 			#dialog {
-				height: 95%;
+				height: calc(min(80vw, 320px) + 100px);
 				padding: 5px;
 
 				background-color: rgb(255, 255, 255);
@@ -159,6 +159,8 @@
 					if (inputInfo.condition)
 						window.parent.postMessage({type: "addCondition", condition: inputInfo.condition}, "*");
 					
+					if (inputInfo.answer == '한스노트')
+						window.parent.postMessage({type: "openHansNote", condition: inputInfo.condition}, "*");
 					handleCloseButton();
 				}
 				else {

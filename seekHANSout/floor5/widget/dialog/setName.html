@@ -200,7 +200,6 @@
 			
 			const startDialog = () => {
 				if (!document.getElementById("button").classList.contains("disable")) {
-					console.log('haha');
 					window.parent.postMessage({type: "startDialog"}, "*");
 				}
 			}
