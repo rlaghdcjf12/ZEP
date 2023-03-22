@@ -269,12 +269,14 @@ const closeDialog = (player) => {
   player.tag.widgetDialog.destroy();
   player.tag.widgetDialog = null;
   player.tag.widgetDialogType = null;
+
+  if (player.tag.condition.includes('hansNote') && !player.tag.widgetNoteButton) openNoteButton(player);
 };
 
 const openToast = (player, msg, timer = 2) => {
   if (player.tag.widgetToast == null) {
     player.tag.widgetToast = player.isMobile
-      ? player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35)
+      ? player.showWidgetResponsive(`widget/toast.html`, 60, 25, 20, 25)
       : player.showWidgetResponsive(`widget/toast.html`, 60, 35, 10, 35);
 
     player.tag.widgetToast.onMessage.Add(function (player, msg) {
@@ -296,14 +298,20 @@ const speedUp = (player) => {
 
 const openNoteButton = (player) => {
   player.tag.widgetNoteButton = player.isMobile
-    ? player.showWidget(`widget/noteButton.html`, 'middleleft', 85, 75)
+    ? player.showWidgetResponsive(`widget/noteButton.html`, 44, 82, 44, 2)
     : player.showWidget(`widget/noteButton.html`, 'middleleft', 90, 85);
 
   player.tag.widgetNoteButton.onMessage.Add(function (player, msg) {
     if (msg.type == 'clickButton') {
       openDialog(4, player, 0);
+      closeNoteButton(player);
     }
   });
+};
+
+const closeNoteButton = (player) => {
+  player.tag.widgetNoteButton.destroy();
+  player.tag.widgetNoteButton = null;
 };
 
 // const bagDialog = (player) => {
