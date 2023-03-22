@@ -10,7 +10,16 @@ App.onInit.Add(function () {
 });
 
 App.onJoinPlayer.Add(function (player) {
-  player.tag = { sturn: false, sTime: 2, condition: ['noName'] };
+  player.tag = {
+    sturn: false,
+    sTime: 2,
+    condition: ['noName'],
+    noteStatus: {
+      flowNo: 0,
+      start: 0,
+      end: -1,
+    },
+  };
   player.displayRatio = player.isMobile ? 1 : 1.5;
 
   initCheckList(player);
@@ -167,39 +176,6 @@ const savePlayer = (player) => {
   players = App.players;
 };
 
-// const backToSeat = (player) => {
-//   player.spawnAt(30, 10, 3);
-//   player.tag.sturn = true;
-//   player.tag.sTime = 3;
-//   player.moveSpeed = 0;
-//   player.sendUpdated();
-// };
-
-// const backToSeatDialog = (player, dialogFlow) => {
-//   if (player.tag.widgetDialog == null) {
-//     player.tag.widgetDialogType = 'BACK_TO_SEAT';
-//     player.tag.widgetDialog = player.isMobile
-//       ? player.showWidgetResponsive('widget/dialog.html', 30, 10, 30, 10)
-//       : player.showWidgetResponsive('widget/dialog.html', 35, 30, 35, 30);
-
-//     player.tag.widgetDialog.onMessage.Add(function (player, msg) {
-//       if (msg.type == 'closeDialog' && player.tag.widgetDialog != null) {
-//         player.tag.widgetDialog.destroy();
-//         player.tag.widgetDialog = null;
-//         player.tag.widgetDialogType = null;
-
-//         backToSeat(player);
-//       }
-//     });
-//   }
-
-//   player.tag.widgetDialog.sendMessage({
-//     type: 1,
-//     condition: player.tag.condition,
-//     dialogFlow,
-//   });
-// };
-
 const dialogType = {
   0: 'setName',
   1: 'normal',
@@ -241,6 +217,7 @@ const openDialog = (type, player, dialogId) => {
     isMobile: player.isMobile,
     isWide,
     condition: player.tag.condition,
+    noteStatus: player.tag.noteStatus,
     dialogId,
   });
 };
@@ -250,11 +227,6 @@ const handleDialogMessage = (player, msg) => {
     closeDialog(player);
   } else if (msg.type == 'speedUp') {
     !player.tag.isSpeedUp ? speedUp(player) : openToast(player, TEXT_AGAIN_COFFEE, 2);
-    // if (!player.tag.isSpeedUp) {
-    //   speedUp(player);
-    // } else {
-    //   openToast(player, TEXT_AGAIN_COFFEE, 2);
-    // }
   } else if (msg.type == 'setCheckList') {
     setCheckList(player, msg.listNo);
   } else if (msg.type == 'openToast') {
@@ -263,6 +235,8 @@ const handleDialogMessage = (player, msg) => {
     player.tag.condition.push(msg.condition);
   } else if (msg.type == 'openHansNote') {
     openNoteButton(player);
+  } else if (msg.type == 'saveHansNote') {
+    saveNoteStatus(player, msg);
   }
 };
 
@@ -313,6 +287,10 @@ const openNoteButton = (player) => {
 const closeNoteButton = (player) => {
   player.tag.widgetNoteButton.destroy();
   player.tag.widgetNoteButton = null;
+};
+
+const saveNoteStatus = (player, msg) => {
+  player.tag.noteStatus = msg.noteStatus;
 };
 
 // const bagDialog = (player) => {

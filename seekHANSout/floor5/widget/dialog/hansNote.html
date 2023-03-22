@@ -49,10 +49,17 @@
 				color: black;
 			}
 
-			.Box {
+			.box {
 				width: 100%;
-				display: flex;
 				margin-top: 4px;
+			}
+
+			.flex {
+				display: flex;
+			}
+
+			.onRight {
+				margin-left: auto;
 			}
 
 			#options {
@@ -89,7 +96,7 @@
 				color: #6758ff;
 			}
 
-			#button {
+			.button {
 				width: 72px;
 				height: 32px;
 				margin-left: auto;
@@ -114,117 +121,58 @@
 				<header class="flex">
 					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://zep.us/images/svg/close__icon.svg" /></div>
 				</header>
+				<div id="buttonBox" class="flex box">
+					<div class="flex onRight ">
+						<div id="prevButton" class="button disable" onclick="javascript:handlePrevButton()">이전 장</div>
+						<div id="nextButton" class="button disable" onclick="javascript:handleNextButton()">다음 장</div>
+					</div>
+				</div>
 				<div class="dialogWrapper">
 					<div id="dialog" class="dialog"></div>
-				</div>
-				<div id="optionBox" class="Box none">
-				</div>
-				<div id="buttonBox" class="Box">
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
-			let dialogFlow, target;
+			let noteStatus =  {
+				flowNo: 0,
+				finishPage: -1,
+				// startPage: 0,
+				// endPage: -1,
+			}
+			let dialogFlow, currentPage, target;
 			let condition = null;
-			let selectedOptionNo = -1;
-			let selectedLink = -11;
-			let selectedCheckListNo = -1;
 
 			window.addEventListener("message", (e) => {
 				condition =  e.data.condition;
-				dialogFlow = NPC_DIALOG_FLOW[0];
+				noteStatus = e.data.noteStatus;
+				dialogFlow = NOTE_FLOW[noteStatus.flowNo];
 
-				setTimeout(async () => {
-					for (var i = 0; i < dialogFlow.textList.length; i++) {
-						document.getElementById("dialog").innerHTML += `<p id='text${i}'></p>`;
-						const text = dialogFlow.textList[i];
-						await typing(i, text);
-						await wait(300);
-					}
-					
-					document.getElementById("optionBox").innerHTML += `
-						<div class="optionGuide">>></div>
-						<div id="options"></div>`;
-					document.getElementById("buttonBox").innerHTML += `
-						<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>`;
+				currentPage = 0;
+				if(dialogFlow.pageList.length != 1){
+					document.getElementById("nextButton").classList.remove('disable');
+				}
+				startDialog(dialogFlow, currentPage);
 
-					if(dialogFlow.options){
-						document.getElementById("optionBox").classList.remove('none');
-						setOptions(0);
-					}
-				}, 1000);
+				// if (noteStatus.startPage > noteStatus.endPage) startDialog(dialogFlow, page);
+				// else endDialog(dialogFlow);
 			});
 
-			const setOptions = (flowNo) => {
-				let Options = document.getElementById("options");
-				Options.innerHTML = '';
-
-				dialogFlow.options.forEach(oi => {
-					const listNo = oi.link == -3 ? oi.listNo : -1;
-
-					if(oi.condition){
-						if(condition.includes(oi.condition)) {
-							Options.innerHTML += 
-								`<button 
-									id="option${oi.number}"
-									class="option" 
-									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
-								>
-									${oi.conditionText}
-								</button>`;
-						} else {
-							Options.innerHTML += 
-								`<button class="option disable">${oi.text}</button>`;
+			const startDialog = (dialogFlow, page) => {
+				document.getElementById("dialog").innerHTML = '';
+				if (finishPage < currentPage) {
+					setTimeout(async () => {
+						const pageTextList = dialogFlow.pageList[page];
+						for (var i = 0; i < pageTextList.length; i++) {
+							document.getElementById("dialog").innerHTML += `<p id='text${i}'></p>`;
+							const text = pageTextList[i];
+							await typing(i, text);
+							await wait(300);
 						}
-					} else {
-						Options.innerHTML += 
-							`<button
-								id="option${oi.number}"
-								class="option"
-								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
-							>
-								${oi.text}
-							</button>`;
-					}
-				});
-			}
-
-			const handleCloseButton = () => {
-				window.parent.postMessage({type: "closeDialog"}, "*");
-			}
-
-			const handleSelectOption = (optNo, link, listNo = -1) => {
-				if(selectedOptionNo != -1){
-					document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
-				}
-				
-				selectedOptionNo = optNo;
-				selectedLink = link;
-				selectedCheckListNo = listNo;
-				document.getElementById(`option${optNo}`).classList.add("selected");
-				document.getElementById("button").classList.remove("disable");
-			}
-
-			const handleButton = () => {
-				if (selectedLink == -1){
-					handleCloseButton();
-				} else if(selectedLink == -3) {
-					window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
-					handleCloseButton();
+						finishPage = currentPage;
+					}, 200);
 				} else {
-					document.getElementById("text").innerText = dialogFlow[selectedLink].text;
-					
-					if (dialogFlow[selectedLink].options) {
-						setOptions(selectedLink);
-					} else {
-						document.getElementById("optionBox").classList.add('none');
-					}
-				}
-				
-				selectedOptionNo = -1;
-				selectedLink = -11;
-				selectedCheckListNo = -1;
-				document.getElementById("button").classList.add("disable");
+					endDialog(dialogFlow, page);
+				}				
 			}
 
 			const typing = async (i, text) => {
@@ -243,23 +191,134 @@
 				return new Promise(res => setTimeout(res, ms));
 			}
 
-			const NPC_DIALOG_FLOW = {
-				0: {
-					textList: [
-						"안녕하세요!", 
-						"글자가 보이시나요?!",
-						"한스입니다!!",
-						"이 책을 열어보시는 분이 계시다니...",
-						"하늘에 감사합니다!!"],
-					options: [
-						{
-							number: 0,
-							text: "네~ 안녕하세요!",
-							link: -1,
-						},
-					],
-				},
-			};
+			const handleCloseButton = () => {
+				window.parent.postMessage({type: "closeDialog"}, "*");
+			}
+
+			const handlePrevButton = () => {
+				if (currentPage > 0) {
+					currentPage = currentPage - 1;
+					
+					if (currentPage <= 0 && !document.getElementById("prevButton").classList.includes('disable')) {
+						document.getElementById("prevButton").classList.add('disable');
+					}
+					if (currentPage < dialogFlow.pageList.length-1 && document.getElementById("nextButton").classList.includes('disable')) {
+						document.getElementById("nextButton").classList.remove('disable');
+					}
+
+					startDialog(dialogFlow, currentPage);
+				}
+			}
+
+			const handleNextButton = () => {
+				if (currentPage < dialogFlow.pageList.length-1) {
+					currentPage = currentPage + 1;
+				
+					if (currentPage > 0 && document.getElementById("prevButton").classList.includes('disable')) {
+						document.getElementById("prevButton").classList.remove('disable');
+					}
+					if (currentPage >= dialogFlow.pageList.length-1 && !document.getElementById("nextButton").classList.includes('disable')) {
+						document.getElementById("nextButton").classList.add('disable');
+					}
+
+					startDialog(dialogFlow, currentPage);
+				}
+
+				if (currentPage == dialogFlow.pageList.length-1) {
+					noteStatus.isFinish = isFinish;
+					saveNoteStatus();
+				}
+			}
+
+			const endDialog = (dialogFlow, page) => {
+				for (text of dialogFlow.pageList[page]) {
+					document.getElementById("dialog").innerHTML += `
+						<p id='text${i}'>
+							${text}
+						</p>`;
+				}
+			}
+
+			const saveNoteStatus = () => {
+				console.log('save noteStatus : ', noteStatus);
+				window.parent.postMessage({type: "saveHansNote", noteStatus }, "*");
+			}
+
+			// const removeDialog = () => {
+			// 	document.getElementById("dialog").innerHTML = '';
+			// }
+
+
+			// const handleSelectOption = (optNo, link, listNo = -1) => {
+			// 	if(selectedOptionNo != -1){
+			// 		document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
+			// 	}
+				
+			// 	selectedOptionNo = optNo;
+			// 	selectedLink = link;
+			// 	selectedCheckListNo = listNo;
+			// 	document.getElementById(`option${optNo}`).classList.add("selected");
+			// 	document.getElementById("button").classList.remove("disable");
+			// }
+
+			// const handleButton = () => {
+			// 	if (selectedLink == -1){
+			// 		handleCloseButton();
+			// 	} else if(selectedLink == -3) {
+			// 		window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
+			// 		handleCloseButton();
+			// 	} else {
+			// 		removeDialog();
+					
+			// 		if (dialogFlow[selectedLink].options) {
+			// 			setOptions(selectedLink);
+			// 		} else {
+			// 			document.getElementById("optionBox").classList.add('none');
+			// 		}
+			// 	}
+				
+			// 	selectedOptionNo = -1;
+			// 	selectedLink = -11;
+			// 	selectedCheckListNo = -1;
+			// 	document.getElementById("button").classList.add("disable");
+			// }
+
+			const NOTE_FLOW = [
+				{
+					link: -3,
+					listNo: 6,
+					pageList: [
+						[
+							"안녕하세요!",
+							"혹시... 글자가 보이시나요?!",
+							"많이 놀라셨죠..! 한스입니다!!",
+							"이 책을 열어보시는 분이 계시다니...",
+							"정말 다행입니다!!"
+						],
+						[
+							"믿기 힘드시겠지만...",
+							"저는 지금 거울 세계에 있습니다!",
+							"이 책을 통해 현실 세계로 메세지를 전달할 수는 있는데,",
+							"현실 세계에서 거울 세계로는 아직 방법이 없습니다...",
+							"하지만, 현실이 바뀌면 거울 세계에 바로 반영이 돼서 알 수 있어요!"
+						],
+						[
+							"그런데, 거울 세계가 현실의 2년 정도 미래에요!",
+							"제가 미래에서 현실로 메세지를 보내고 있는 것이죠!",
+							"미래에 있어서 참 좋을 것 같지만...",
+							"이 곳의 상황이 상당히 충격적이라...",
+							"이 미래를 바꿔주세요!몇 가지 부탁이 있어요!"
+						],
+						[
+							"그래서 제가 생각한 방안 몇 가지가 있는데,",
+							"첫 번째는 지금 현실세계에",
+							"혼자 폭포수로 뛰어들려는 분이 계시는데요...",
+							"이분을 막아주세요...!",
+							"기다리고 있을게요!"
+						]
+					]
+				}
+			];
 		</script>
 	</body>
 </html>
