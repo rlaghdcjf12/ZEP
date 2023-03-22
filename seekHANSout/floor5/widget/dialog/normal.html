@@ -167,8 +167,8 @@
 
 					if(oi.condition){
 						if(condition.includes(oi.condition)) {
-							Options.innerHTML += 
-								`<button 
+							Options.innerHTML += `
+								<button 
 									id="option${oi.number}"
 									class="option" 
 									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
@@ -176,12 +176,12 @@
 									${oi.conditionText}
 								</button>`;
 						} else {
-							Options.innerHTML += 
-								`<button class="option disable">${oi.text}</button>`;
+							Options.innerHTML += `
+								<button class="option disable">${oi.text}</button>`;
 						}
 					} else {
-						Options.innerHTML += 
-							`<button
+						Options.innerHTML += `
+							<button
 								id="option${oi.number}"
 								class="option"
 								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
@@ -277,15 +277,15 @@
 			const NPC_DIALOG_FLOW = {
 				0: [
 					{
-					name: NPC_NAME[0],
-					text: '한스님이라면... 옆에 휴게공간에서 봤던 것 같아요! 🙂',
-					options: [
-						{
-						number: 0,
-						text: '네~ 감사합니다!',
-						link: -1,
-						},
-					],
+						name: NPC_NAME[0],
+						text: '한스님이라면... 옆에 휴게공간에서 봤던 것 같아요! 🙂',
+						options: [
+							{
+							number: 0,
+							text: '네~ 감사합니다!',
+							link: -1,
+							},
+						],
 					},
 				],
 				1: [

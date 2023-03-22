@@ -10,25 +10,20 @@
 				height: 100%;
 
 				background-color: rgba(255, 255, 255, 0);
-
-				font-family: "Gaegu";
-				font-size: 24px;
 			}
 
 			.noteWrapper {
 				width: min(90vw, 400px);
 				height: 85%;
+				
+				margin: 0 auto;
 				padding: 4px 4px 4px 32px;
 				
 				background-image: url("https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansNote.png?raw=true");
 				background-size: cover;
-
-				/* background-color: rgb(255, 255, 255); */
-
-				color: black;
 			}
 
-			header {
+			.flex {
 				display: flex;
 			}
 
@@ -48,11 +43,10 @@
 
 			p {
 				margin: 4px 0;
-			}
-
-			/*
-			h3 {
-				margin: 0;
+				
+				font-family: "Gaegu";
+				font-size: 24px;
+				color: black;
 			}
 
 			.Box {
@@ -111,29 +105,33 @@
 
 			.disable {
 				background-color: gray !important;
-			} */
+			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
 			<div class="noteWrapper">
-				<header>
+				<header class="flex">
 					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://zep.us/images/svg/close__icon.svg" /></div>
 				</header>
 				<div class="dialogWrapper">
 					<div id="dialog" class="dialog"></div>
 				</div>
+				<div id="optionBox" class="Box none">
+				</div>
+				<div id="buttonBox" class="Box">
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
 			let dialogFlow, target;
-
-			// let condition = null;
-			// let selectedOptionNo = -1;
-			// let selectedLink = -11;
-			// let selectedCheckListNo = -1;
+			let condition = null;
+			let selectedOptionNo = -1;
+			let selectedLink = -11;
+			let selectedCheckListNo = -1;
 
 			window.addEventListener("message", (e) => {
+				condition =  e.data.condition;
 				dialogFlow = NPC_DIALOG_FLOW[0];
 
 				setTimeout(async () => {
@@ -143,102 +141,86 @@
 						await typing(i, text);
 						await wait(300);
 					}
+					
+					document.getElementById("optionBox").innerHTML += `
+						<div class="optionGuide">>></div>
+						<div id="options"></div>`;
+					document.getElementById("buttonBox").innerHTML += `
+						<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>`;
 				}, 1000);
-				
-				// const type = ACTION_TYPE[e.data.type];
-				// condition =  e.data.condition;
-				// dialogFlow = NPC_DIALOG_FLOW[e.data.dialogId];
-
-				// if (type == ACTION_TYPE[1]){
-				// 	document.getElementById("name").innerText = dialogFlow[0].name;
-				// 	document.getElementById("text").innerText = dialogFlow[0].text;
-
-				// 	if(dialogFlow[0].options){
-				// 		document.getElementById("optionBox").classList.remove('none');
-				// 		setOptions(0);
-				// 	}
-				// } else if (type == ACTION_TYPE[2]) {
-
-				// } else if (type == ACTION_TYPE[3]) {
-
-				// }
 			});
 
-			// const setOptions = (flowNo) => {
-			// 	let Options = document.getElementById("options");
-			// 	Options.innerHTML = '';
+			const setOptions = (flowNo) => {
+				let Options = document.getElementById("options");
+				Options.innerHTML = '';
 
-			// 	dialogFlow[flowNo].options.forEach(oi => {
-			// 		const listNo = oi.link == -3 ? oi.listNo : -1;
+				dialogFlow[flowNo].options.forEach(oi => {
+					const listNo = oi.link == -3 ? oi.listNo : -1;
 
-			// 		if(oi.condition){
-			// 			if(condition.includes(oi.condition)) {
-			// 				Options.innerHTML += 
-			// 					`<button 
-			// 						id="option${oi.number}"
-			// 						class="option" 
-			// 						onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
-			// 					>
-			// 						${oi.conditionText}
-			// 					</button>`;
-			// 			} else {
-			// 				Options.innerHTML += 
-			// 					`<button class="option disable">${oi.text}</button>`;
-			// 			}
-			// 		} else {
-			// 			Options.innerHTML += 
-			// 				`<button
-			// 					id="option${oi.number}"
-			// 					class="option"
-			// 					onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
-			// 				>
-			// 					${oi.text}
-			// 				</button>`;
-			// 		}
-			// 	});
-			// }
+					if(oi.condition){
+						if(condition.includes(oi.condition)) {
+							Options.innerHTML += 
+								`<button 
+									id="option${oi.number}"
+									class="option" 
+									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+								>
+									${oi.conditionText}
+								</button>`;
+						} else {
+							Options.innerHTML += 
+								`<button class="option disable">${oi.text}</button>`;
+						}
+					} else {
+						Options.innerHTML += 
+							`<button
+								id="option${oi.number}"
+								class="option"
+								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+							>
+								${oi.text}
+							</button>`;
+					}
+				});
+			}
 
-			// const handleCloseButton = () => {
-			// 	window.parent.postMessage({type: "closeDialog"}, "*");
-			// }
+			const handleCloseButton = () => {
+				window.parent.postMessage({type: "closeDialog"}, "*");
+			}
 
-			// const handleSelectOption = (optNo, link, listNo = -1) => {
-			// 	if(selectedOptionNo != -1){
-			// 		document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
-			// 	}
+			const handleSelectOption = (optNo, link, listNo = -1) => {
+				if(selectedOptionNo != -1){
+					document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
+				}
 				
-			// 	selectedOptionNo = optNo;
-			// 	selectedLink = link;
-			// 	selectedCheckListNo = listNo;
-			// 	document.getElementById(`option${optNo}`).classList.add("selected");
-			// 	document.getElementById("button").classList.remove("disable");
-			// }
+				selectedOptionNo = optNo;
+				selectedLink = link;
+				selectedCheckListNo = listNo;
+				document.getElementById(`option${optNo}`).classList.add("selected");
+				document.getElementById("button").classList.remove("disable");
+			}
 
-			// const handleButton = () => {
-			// 	if (selectedLink == -1){
-			// 		handleCloseButton();
-			// 	} else if(selectedLink == -2) {
-			// 		window.parent.postMessage({type: "speedUp"}, "*");
-			// 		handleCloseButton();
-			// 	} else if(selectedLink == -3) {
-			// 		window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
-			// 		handleCloseButton();
-			// 	} else {
-			// 		document.getElementById("name").innerText = dialogFlow[selectedLink].name;
-			// 		document.getElementById("text").innerText = dialogFlow[selectedLink].text;
+			const handleButton = () => {
+				if (selectedLink == -1){
+					handleCloseButton();
+				} else if(selectedLink == -3) {
+					window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
+					handleCloseButton();
+				} else {
+					document.getElementById("text").innerText = dialogFlow[selectedLink].text;
 					
-			// 		if (dialogFlow[selectedLink].options) {
-			// 			setOptions(selectedLink);
-			// 		} else {
-			// 			document.getElementById("optionBox").classList.add('none');
-			// 		}
-			// 	}
+					if (dialogFlow[selectedLink].options) {
+						setOptions(selectedLink);
+					} else {
+						document.getElementById("optionBox").classList.add('none');
+					}
+				}
 				
-			// 	selectedOptionNo = -1;
-			// 	selectedLink = -11;
-			// 	selectedCheckListNo = -1;
-			// 	document.getElementById("button").classList.add("disable");
-			// }
+				selectedOptionNo = -1;
+				selectedLink = -11;
+				selectedCheckListNo = -1;
+				document.getElementById("button").classList.add("disable");
+			}
 
 			const typing = async (i, text) => {
 				const target = document.getElementById(`text${i}`);
@@ -256,10 +238,6 @@
 				return new Promise(res => setTimeout(res, ms));
 			}
 
-			const handleCloseButton = () => {
-				window.parent.postMessage({type: "closeDialog"}, "*");
-			}
-
 			const NPC_DIALOG_FLOW = {
 				0: {
 					textList: [
@@ -268,13 +246,13 @@
 						"한스입니다!!",
 						"이 책을 열어보시는 분이 계시다니...",
 						"하늘에 감사합니다!!"],
-					// options: [
-					// 	{
-					// 		number: 0,
-					// 		text: "네~ 안녕하세요!",
-					// 		link: -1,
-					// 	},
-					// ],
+					options: [
+						{
+							number: 0,
+							text: "네~ 안녕하세요!",
+							link: -1,
+						},
+					],
 				},
 			};
 		</script>

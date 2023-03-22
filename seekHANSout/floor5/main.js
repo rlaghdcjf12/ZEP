@@ -114,6 +114,7 @@ const openSetNameDialog = (player) => {
   player.tag.widgetDialog.onMessage.Add(function (player, msg) {
     if (msg.type == 'setName') {
       player.name = msg.name;
+      console.log('con : ', player.tag.condition);
       player.tag.condition = player.tag.condition.filter((c) => c !== 'noName');
       savePlayer(player);
       startTimer(player);
