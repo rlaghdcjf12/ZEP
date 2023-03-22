@@ -6,26 +6,27 @@
 				font-size: 14px;
 			}
 
-			#dialog {
+			#note {
 				height: 85%;
 				padding: 5px;
 
-				background-color: rgb(255, 255, 255);
+				/* background-color: rgb(255, 255, 255); */
 
 				font-size: 14px;
 				color: black;
 			}
 
-			.dialogWrapper {
+			.noteWrapper {
 				height: 100%;
-				padding: 20px;
+				/* padding: 20px; */
 
-				border: solid 3px dimgray;
-				border-radius: 10px;
-				background-color: white;
+				/* border: solid 3px dimgray;
+				border-radius: 10px; */
+				background-image: url("https://plancus.co.kr/web/product/big/202111/1bd64030bba38294787bf344a8572a19.jpg");
+				background-size: cover;
 			}
 
-			header {
+			/* header {
 				display: flex;
 			}
 
@@ -105,134 +106,145 @@
 
 			.disable {
 				background-color: gray !important;
-			}
+			} */
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<div id="dialog" class="dialogWrapper">
-				<header>
-					<h3 id="name"></h3>
-					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://zep.us/images/svg/close__icon.svg" /></div>
-				</header>
-				<p id="text"></p>
-				<div id="optionBox" class="Box none">
-					<div class="optionGuide">>></div>
-					<div id="options"></div>
-				</div>
-				<div class="Box">
-					<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>
+			<div id="note" class="noteWrapper">
+				<div class="dialogWrapper">
+					<div id="dialog" class="dialog"></div>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
-			const ACTION_TYPE = {
-				1: 'NORMAL',
-				2: 'INPUT',
-				3: 'IMAGE',
-			};
+			let dialogFlow, target;
 
-			let dialogFlow = null;
-			let condition = null;
-			let selectedOptionNo = -1;
-			let selectedLink = -11;
-			let selectedCheckListNo = -1;
+			const splitString = (str) => {
+				const src = str;
+				console.log('before split. str = ' + str);
+				return src.split('');
+			}
+
+			const typing = (str) => {
+				target = document.getElementById("dialog");
+
+				const srcStr = splitString(str);
+				console.log('after split. str = ' + srcStr);
+				var strPtr = 0;
+				while(strPtr < srcStr.length){
+				console.log('strPtr = ' + strPtr);
+					setTimeout(() => {
+						target.innerText += srcStr.indexOf(strPtr);
+					}, 100);
+					strPtr++;
+				}
+			}
+
+
+			// let condition = null;
+			// let selectedOptionNo = -1;
+			// let selectedLink = -11;
+			// let selectedCheckListNo = -1;
 
 			window.addEventListener("message", (e) => {
-				const type = ACTION_TYPE[e.data.type];
-				condition =  e.data.condition;
-				dialogFlow = NPC_DIALOG_FLOW[e.data.dialogId];
+				dialogFlow = NPC_DIALOG_FLOW[0];
+				typing(dialogFlow[0].text);
+				
+				// const type = ACTION_TYPE[e.data.type];
+				// condition =  e.data.condition;
+				// dialogFlow = NPC_DIALOG_FLOW[e.data.dialogId];
 
-				if (type == ACTION_TYPE[1]){
-					document.getElementById("name").innerText = dialogFlow[0].name;
-					document.getElementById("text").innerText = dialogFlow[0].text;
+				// if (type == ACTION_TYPE[1]){
+				// 	document.getElementById("name").innerText = dialogFlow[0].name;
+				// 	document.getElementById("text").innerText = dialogFlow[0].text;
 
-					if(dialogFlow[0].options){
-						document.getElementById("optionBox").classList.remove('none');
-						setOptions(0);
-					}
-				} else if (type == ACTION_TYPE[2]) {
+				// 	if(dialogFlow[0].options){
+				// 		document.getElementById("optionBox").classList.remove('none');
+				// 		setOptions(0);
+				// 	}
+				// } else if (type == ACTION_TYPE[2]) {
 
-				} else if (type == ACTION_TYPE[3]) {
+				// } else if (type == ACTION_TYPE[3]) {
 
-				}
+				// }
 			});
 
-			const setOptions = (flowNo) => {
-				let Options = document.getElementById("options");
-				Options.innerHTML = '';
+			// const setOptions = (flowNo) => {
+			// 	let Options = document.getElementById("options");
+			// 	Options.innerHTML = '';
 
-				dialogFlow[flowNo].options.forEach(oi => {
-					const listNo = oi.link == -3 ? oi.listNo : -1;
+			// 	dialogFlow[flowNo].options.forEach(oi => {
+			// 		const listNo = oi.link == -3 ? oi.listNo : -1;
 
-					if(oi.condition){
-						if(condition.includes(oi.condition)) {
-							Options.innerHTML += 
-								`<button 
-									id="option${oi.number}"
-									class="option" 
-									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
-								>
-									${oi.conditionText}
-								</button>`;
-						} else {
-							Options.innerHTML += 
-								`<button class="option disable">${oi.text}</button>`;
-						}
-					} else {
-						Options.innerHTML += 
-							`<button
-								id="option${oi.number}"
-								class="option"
-								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
-							>
-								${oi.text}
-							</button>`;
-					}
-				});
-			}
+			// 		if(oi.condition){
+			// 			if(condition.includes(oi.condition)) {
+			// 				Options.innerHTML += 
+			// 					`<button 
+			// 						id="option${oi.number}"
+			// 						class="option" 
+			// 						onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+			// 					>
+			// 						${oi.conditionText}
+			// 					</button>`;
+			// 			} else {
+			// 				Options.innerHTML += 
+			// 					`<button class="option disable">${oi.text}</button>`;
+			// 			}
+			// 		} else {
+			// 			Options.innerHTML += 
+			// 				`<button
+			// 					id="option${oi.number}"
+			// 					class="option"
+			// 					onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+			// 				>
+			// 					${oi.text}
+			// 				</button>`;
+			// 		}
+			// 	});
+			// }
 
-			const handleCloseButton = () => {
-				window.parent.postMessage({type: "closeDialog"}, "*");
-			}
+			// const handleCloseButton = () => {
+			// 	window.parent.postMessage({type: "closeDialog"}, "*");
+			// }
 
-			const handleSelectOption = (optNo, link, listNo = -1) => {
-				if(selectedOptionNo != -1){
-					document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
-				}
+			// const handleSelectOption = (optNo, link, listNo = -1) => {
+			// 	if(selectedOptionNo != -1){
+			// 		document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
+			// 	}
 				
-				selectedOptionNo = optNo;
-				selectedLink = link;
-				selectedCheckListNo = listNo;
-				document.getElementById(`option${optNo}`).classList.add("selected");
-				document.getElementById("button").classList.remove("disable");
-			}
+			// 	selectedOptionNo = optNo;
+			// 	selectedLink = link;
+			// 	selectedCheckListNo = listNo;
+			// 	document.getElementById(`option${optNo}`).classList.add("selected");
+			// 	document.getElementById("button").classList.remove("disable");
+			// }
 
-			const handleButton = () => {
-				if (selectedLink == -1){
-					handleCloseButton();
-				} else if(selectedLink == -2) {
-					window.parent.postMessage({type: "speedUp"}, "*");
-					handleCloseButton();
-				} else if(selectedLink == -3) {
-					window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
-					handleCloseButton();
-				} else {
-					document.getElementById("name").innerText = dialogFlow[selectedLink].name;
-					document.getElementById("text").innerText = dialogFlow[selectedLink].text;
+			// const handleButton = () => {
+			// 	if (selectedLink == -1){
+			// 		handleCloseButton();
+			// 	} else if(selectedLink == -2) {
+			// 		window.parent.postMessage({type: "speedUp"}, "*");
+			// 		handleCloseButton();
+			// 	} else if(selectedLink == -3) {
+			// 		window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
+			// 		handleCloseButton();
+			// 	} else {
+			// 		document.getElementById("name").innerText = dialogFlow[selectedLink].name;
+			// 		document.getElementById("text").innerText = dialogFlow[selectedLink].text;
 					
-					if (dialogFlow[selectedLink].options) {
-						setOptions(selectedLink);
-					} else {
-						document.getElementById("optionBox").classList.add('none');
-					}
-				}
+			// 		if (dialogFlow[selectedLink].options) {
+			// 			setOptions(selectedLink);
+			// 		} else {
+			// 			document.getElementById("optionBox").classList.add('none');
+			// 		}
+			// 	}
 				
-				selectedOptionNo = -1;
-				selectedLink = -11;
-				selectedCheckListNo = -1;
-				document.getElementById("button").classList.add("disable");
-			}
+			// 	selectedOptionNo = -1;
+			// 	selectedLink = -11;
+			// 	selectedCheckListNo = -1;
+			// 	document.getElementById("button").classList.add("disable");
+			// }
 
 			const NPC_NAME = {
 					0: '거울세계의 한스',
@@ -242,11 +254,11 @@
 				0: [
 					{
 						name: NPC_NAME[0],
-						text: '안녕하세요! 🙂',
+						text: "안녕하세요! 🙂",
 						options: [
 							{
 							number: 0,
-							text: '네~ 안녕하세요!',
+							text: "네~ 안녕하세요!",
 							link: -1,
 							},
 						],
