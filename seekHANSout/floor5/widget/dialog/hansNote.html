@@ -147,6 +147,11 @@
 						<div id="options"></div>`;
 					document.getElementById("buttonBox").innerHTML += `
 						<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>`;
+
+					if(dialogFlow.options){
+						document.getElementById("optionBox").classList.remove('none');
+						setOptions(0);
+					}
 				}, 1000);
 			});
 
@@ -154,7 +159,7 @@
 				let Options = document.getElementById("options");
 				Options.innerHTML = '';
 
-				dialogFlow[flowNo].options.forEach(oi => {
+				dialogFlow.options.forEach(oi => {
 					const listNo = oi.link == -3 ? oi.listNo : -1;
 
 					if(oi.condition){

@@ -233,27 +233,7 @@ const openDialog = (type, player, dialogId) => {
       dialogSize[type][player.isMobile ? 2 : !isWide ? 6 : 10],
       dialogSize[type][player.isMobile ? 3 : !isWide ? 7 : 11]
     );
-    player.tag.widgetDialog.onMessage.Add(function (player, msg) {
-      if (msg.type == 'closeDialog') {
-        closeDialog(player);
-      } else if (msg.type == 'speedUp') {
-        if (!player.tag.isSpeedUp) {
-          speedUp(player);
-        } else {
-          openToast(player, TEXT_AGAIN_COFFEE, 2);
-        }
-      } else if (msg.type == 'setCheckList') {
-        setCheckList(player, msg.listNo);
-      } else if (msg.type == 'openToast') {
-        openToast(player, msg.toast, 2);
-      } else if (msg.type == 'addCondition') {
-        player.tag.condition.push(msg.condition);
-      } else if (msg.type == 'openHansNote') {
-        openNoteButton(player);
-      }
-
-      // if (msg.type == 'backToSeat') backToSeat(player);
-    });
+    player.tag.widgetDialog.onMessage.Add((player, msg) => handleDialogMessage(player, msg));
   }
 
   player.tag.widgetDialog.sendMessage({
@@ -263,6 +243,27 @@ const openDialog = (type, player, dialogId) => {
     condition: player.tag.condition,
     dialogId,
   });
+};
+
+const handleDialogMessage = (player, msg) => {
+  if (msg.type == 'closeDialog') {
+    closeDialog(player);
+  } else if (msg.type == 'speedUp') {
+    !player.tag.isSpeedUp ? speedUp(player) : openToast(player, TEXT_AGAIN_COFFEE, 2);
+    // if (!player.tag.isSpeedUp) {
+    //   speedUp(player);
+    // } else {
+    //   openToast(player, TEXT_AGAIN_COFFEE, 2);
+    // }
+  } else if (msg.type == 'setCheckList') {
+    setCheckList(player, msg.listNo);
+  } else if (msg.type == 'openToast') {
+    openToast(player, msg.toast, 2);
+  } else if (msg.type == 'addCondition') {
+    player.tag.condition.push(msg.condition);
+  } else if (msg.type == 'openHansNote') {
+    openNoteButton(player);
+  }
 };
 
 const closeDialog = (player) => {
