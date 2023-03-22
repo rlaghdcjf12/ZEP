@@ -52,19 +52,19 @@ App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
 
 App.addOnLocationTouched('toilet', function (player) {
   if (!player.tag.condition.includes('toilet')) {
-    player.tag.condition += 'toilet';
+    player.tag.condition.push('toilet');
     openDialog(1, player, 40);
   }
 });
 App.addOnLocationTouched('coin', function (player) {
   if (!player.tag.condition.includes('coin')) {
-    player.tag.condition += 'coin';
+    player.tag.condition.push('coin');
     openDialog(1, player, 42);
   }
 });
 App.addOnLocationTouched('finish', function (player) {
   if (!player.tag.condition.includes('finish')) {
-    player.tag.condition += 'finish';
+    player.tag.condition.push('finish');
     player.tag.widgetTimer.destroy();
     player.tag.widgetTimer = null;
   }
@@ -114,7 +114,6 @@ const openSetNameDialog = (player) => {
   player.tag.widgetDialog.onMessage.Add(function (player, msg) {
     if (msg.type == 'setName') {
       player.name = msg.name;
-      console.log('con : ', player.tag.condition);
       player.tag.condition = player.tag.condition.filter((c) => c !== 'noName');
       savePlayer(player);
       startTimer(player);
@@ -248,7 +247,7 @@ const openDialog = (type, player, dialogId) => {
       } else if (msg.type == 'openToast') {
         openToast(player, msg.toast, 2);
       } else if (msg.type == 'addCondition') {
-        player.tag.condition += msg.condition;
+        player.tag.condition.push(msg.condition);
       } else if (msg.type == 'openHansNote') {
         openNoteButton(player);
       }
