@@ -16,8 +16,7 @@ App.onJoinPlayer.Add(function (player) {
     condition: ['noName'],
     noteStatus: {
       flowNo: 0,
-      start: 0,
-      end: -1,
+      finishPage: -1,
     },
   };
   player.displayRatio = player.isMobile ? 1 : 1.5;

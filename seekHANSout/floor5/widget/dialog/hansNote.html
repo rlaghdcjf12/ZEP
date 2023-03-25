@@ -139,40 +139,41 @@
 				// startPage: 0,
 				// endPage: -1,
 			}
-			let dialogFlow, currentPage, target;
-			let condition = null;
+			let dialogFlow, currentPage, target, condition;
 
 			window.addEventListener("message", (e) => {
-				condition =  e.data.condition;
-				noteStatus = e.data.noteStatus;
-				dialogFlow = NOTE_FLOW[noteStatus.flowNo];
+				init(e.data);
 
-				currentPage = 0;
 				if(dialogFlow.pageList.length != 1){
 					document.getElementById("nextButton").classList.remove('disable');
 				}
-				startDialog(dialogFlow, currentPage);
-
-				// if (noteStatus.startPage > noteStatus.endPage) startDialog(dialogFlow, page);
-				// else endDialog(dialogFlow);
+				showDialog(dialogFlow, currentPage);
 			});
 
-			const startDialog = (dialogFlow, page) => {
+			const init = (data) => {
+				condition =  data.condition;
+				noteStatus = data.noteStatus;
+				dialogFlow = NOTE_FLOW[noteStatus.flowNo];
+				currentPage = 0;
+			}
+
+			const showDialog = (dialogFlow, page) => {
 				document.getElementById("dialog").innerHTML = '';
-				if (finishPage < currentPage) {
+				if (noteStatus.finishPage < currentPage) {
 					setTimeout(async () => {
-						const pageTextList = dialogFlow.pageList[page];
-						for (var i = 0; i < pageTextList.length; i++) {
+						const textList = dialogFlow.pageList[page];
+						for (var i = 0; i < textList.length; i++) {
 							document.getElementById("dialog").innerHTML += `<p id='text${i}'></p>`;
-							const text = pageTextList[i];
+							const text = textList[i];
 							await typing(i, text);
 							await wait(300);
 						}
-						finishPage = currentPage;
+						noteStatus.finishPage = currentPage;
+						saveNoteStatus();
 					}, 200);
 				} else {
-					endDialog(dialogFlow, page);
-				}				
+					showFinishedDialog(dialogFlow, page);
+				}
 			}
 
 			const typing = async (i, text) => {
@@ -199,43 +200,52 @@
 				if (currentPage > 0) {
 					currentPage = currentPage - 1;
 					
-					if (currentPage <= 0 && !document.getElementById("prevButton").classList.includes('disable')) {
-						document.getElementById("prevButton").classList.add('disable');
-					}
-					if (currentPage < dialogFlow.pageList.length-1 && document.getElementById("nextButton").classList.includes('disable')) {
-						document.getElementById("nextButton").classList.remove('disable');
-					}
-
-					startDialog(dialogFlow, currentPage);
+					controlButtonDisable();
+					showDialog(dialogFlow, currentPage);
 				}
 			}
 
 			const handleNextButton = () => {
 				if (currentPage < dialogFlow.pageList.length-1) {
 					currentPage = currentPage + 1;
-				
-					if (currentPage > 0 && document.getElementById("prevButton").classList.includes('disable')) {
-						document.getElementById("prevButton").classList.remove('disable');
-					}
-					if (currentPage >= dialogFlow.pageList.length-1 && !document.getElementById("nextButton").classList.includes('disable')) {
-						document.getElementById("nextButton").classList.add('disable');
-					}
 
-					startDialog(dialogFlow, currentPage);
-				}
-
-				if (currentPage == dialogFlow.pageList.length-1) {
-					noteStatus.isFinish = isFinish;
-					saveNoteStatus();
+					controlButtonDisable();
+					showDialog(dialogFlow, currentPage);
 				}
 			}
 
-			const endDialog = (dialogFlow, page) => {
+			const controlButtonDisable = () => {
+				const prevButton = document.getElementById("prevButton");
+				const nextButton = document.getElementById("nextButton");
+				const isPrevDisable = prevButton.classList.contains('disable');
+				const isNextDisable = nextButton.classList.contains('disable');
+
+				if (dialogFlow.pageList.length == 1) {
+					if (!isPrevDisable) prevButton.classList.add('disable');
+					if (!isNextDisable) nextButton.classList.add('disable');
+				} else {
+					if (currentPage <= 0) {
+						if (!isPrevDisable) prevButton.classList.add('disable');
+					} else {
+						if (isPrevDisable) prevButton.classList.remove('disable');
+					}
+					
+					if (currentPage >= dialogFlow.pageList.length - 1) {
+						if (!isNextDisable) nextButton.classList.add('disable');
+					} else {
+						if (isNextDisable) nextButton.classList.remove('disable');
+					}
+				}
+			}
+
+			const showFinishedDialog = (dialogFlow, page) => {
+				var i = 0;
 				for (text of dialogFlow.pageList[page]) {
 					document.getElementById("dialog").innerHTML += `
 						<p id='text${i}'>
 							${text}
 						</p>`;
+					i++;
 				}
 			}
 
@@ -243,45 +253,6 @@
 				console.log('save noteStatus : ', noteStatus);
 				window.parent.postMessage({type: "saveHansNote", noteStatus }, "*");
 			}
-
-			// const removeDialog = () => {
-			// 	document.getElementById("dialog").innerHTML = '';
-			// }
-
-
-			// const handleSelectOption = (optNo, link, listNo = -1) => {
-			// 	if(selectedOptionNo != -1){
-			// 		document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
-			// 	}
-				
-			// 	selectedOptionNo = optNo;
-			// 	selectedLink = link;
-			// 	selectedCheckListNo = listNo;
-			// 	document.getElementById(`option${optNo}`).classList.add("selected");
-			// 	document.getElementById("button").classList.remove("disable");
-			// }
-
-			// const handleButton = () => {
-			// 	if (selectedLink == -1){
-			// 		handleCloseButton();
-			// 	} else if(selectedLink == -3) {
-			// 		window.parent.postMessage({type: "setCheckList", listNo: selectedCheckListNo}, "*");
-			// 		handleCloseButton();
-			// 	} else {
-			// 		removeDialog();
-					
-			// 		if (dialogFlow[selectedLink].options) {
-			// 			setOptions(selectedLink);
-			// 		} else {
-			// 			document.getElementById("optionBox").classList.add('none');
-			// 		}
-			// 	}
-				
-			// 	selectedOptionNo = -1;
-			// 	selectedLink = -11;
-			// 	selectedCheckListNo = -1;
-			// 	document.getElementById("button").classList.add("disable");
-			// }
 
 			const NOTE_FLOW = [
 				{
