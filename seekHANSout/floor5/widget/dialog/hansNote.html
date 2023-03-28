@@ -147,6 +147,7 @@
 				if(dialogFlow.pageList.length != 1){
 					document.getElementById("nextButton").classList.remove('disable');
 				}
+				controlButtonDisable();
 				showDialog(dialogFlow, currentPage);
 			});
 
@@ -170,6 +171,7 @@
 						}
 						noteStatus.finishPage = currentPage;
 						saveNoteStatus();
+						controlButtonDisable();
 					}, 200);
 				} else {
 					showFinishedDialog(dialogFlow, page);
@@ -197,20 +199,24 @@
 			}
 
 			const handlePrevButton = () => {
-				if (currentPage > 0) {
-					currentPage = currentPage - 1;
-					
-					controlButtonDisable();
-					showDialog(dialogFlow, currentPage);
+				if (!document.getElementById("prevButton").classList.contains('disable')) {
+					if (currentPage > 0) {
+						currentPage = currentPage - 1;
+						
+						controlButtonDisable();
+						showDialog(dialogFlow, currentPage);
+					}
 				}
 			}
 
 			const handleNextButton = () => {
-				if (currentPage < dialogFlow.pageList.length-1) {
-					currentPage = currentPage + 1;
+				if (!document.getElementById("nextButton").classList.contains('disable')) {
+					if (currentPage < dialogFlow.pageList.length-1) {
+						currentPage = currentPage + 1;
 
-					controlButtonDisable();
-					showDialog(dialogFlow, currentPage);
+						controlButtonDisable();
+						showDialog(dialogFlow, currentPage);
+					}
 				}
 			}
 
@@ -224,6 +230,11 @@
 					if (!isPrevDisable) prevButton.classList.add('disable');
 					if (!isNextDisable) nextButton.classList.add('disable');
 				} else {
+					if (currentPage > noteStatus.finishPage) {
+						if (!isPrevDisable) prevButton.classList.add('disable');
+						if (!isNextDisable) nextButton.classList.add('disable');
+					}
+
 					if (currentPage <= 0) {
 						if (!isPrevDisable) prevButton.classList.add('disable');
 					} else {
@@ -268,24 +279,31 @@
 						],
 						[
 							"믿기 힘드시겠지만...",
-							"저는 지금 거울 세계에 있습니다!",
-							"이 책을 통해 현실 세계로 메세지를 전달할 수는 있는데,",
-							"현실 세계에서 거울 세계로는 아직 방법이 없습니다...",
-							"하지만, 현실이 바뀌면 거울 세계에 바로 반영이 돼서 알 수 있어요!"
+							"저는 지금 거울 세계에 있어요!",
+							"이 책이 그 매개체인데요.",
+							"하지만, 아쉽게도...",
+							"거울 세계 -> 현실로만 가능해요",
 						],
 						[
-							"그런데, 거울 세계가 현실의 2년 정도 미래에요!",
-							"제가 미래에서 현실로 메세지를 보내고 있는 것이죠!",
-							"미래에 있어서 참 좋을 것 같지만...",
-							"이 곳의 상황이 상당히 충격적이라...",
-							"이 미래를 바꿔주세요!몇 가지 부탁이 있어요!"
+							"하지만, 현실이 바뀌면",
+							"거울 세계에 바로 반영이 돼서",
+							"알 수 있어요!",
+							"또 놀라운 점은...",
+							"이곳이 현실의 2년 후 입니다!",
 						],
 						[
-							"그래서 제가 생각한 방안 몇 가지가 있는데,",
+							"미래와 현실이 연결된 것이죠!!!",
+							"미래를 보면 참 좋을 것 같지만",
+							"미래 상황이 너무 충격적이라...",
+							"이 미래를 바꾸기 위해서",
+							"몇 가지 부탁이 있어요!",
+						],
+						[
 							"첫 번째는 지금 현실세계에",
-							"혼자 폭포수로 뛰어들려는 분이 계시는데요...",
+							"혼자 폭포수로 뛰어들려는",
+							"분이 계시는데요...",
 							"이분을 막아주세요...!",
-							"기다리고 있을게요!"
+							"기다리고 있겠습니다!!"
 						]
 					]
 				}
