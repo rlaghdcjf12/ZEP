@@ -13,11 +13,11 @@
 			}
 
 			.noteWrapper {
-				width: min(90vw, 400px);
+				width: min(80vw, 360px);
 				height: 85%;
 				
 				margin: 0 auto;
-				padding: 4px 4px 4px 32px;
+				padding: 4px min(20px, 3vw);
 				
 				background-image: url("https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansNote.png?raw=true");
 				background-size: cover;
@@ -45,7 +45,7 @@
 				margin: 4px 0;
 				
 				font-family: "Gaegu";
-				font-size: 24px;
+				font-size: min(8vw, 24px);
 				color: black;
 			}
 
@@ -62,48 +62,15 @@
 				margin-left: auto;
 			}
 
-			#options {
-				width: 100%;
-			}
-
-			.optionGuide {
-				width: 10%;
-				height: 32px;
-
-				line-height: 32px;
-				font-weight: 600;
-				text-align: center;
-			}
-
-			.option {
-				width: 100%;
-				height: 32px;
-				margin-bottom: 4px;
-
-				border: solid 1px #ccc;
-				border-radius: 4px;
-				background-color: #f3f2ff;
-
-				line-height: 32px;
-				font-size: min(14px, 3vmax);
-				color: black;
-				text-align: center;
-				overflow: hidden;
-			}
-
-			.option.selected {
-				background-color: #e9e8ff;
-				color: #6758ff;
-			}
-
 			.button {
 				width: 72px;
 				height: 32px;
-				margin-left: auto;
+				margin-left: 4px;
 
 				border: solid 1px white;
 				border-radius: 4px;
 				background-color: #6758ff;
+				font-size: min(6vw, 14px);
 
 				line-height: 32px;
 				color: white;
@@ -121,14 +88,10 @@
 				<header class="flex">
 					<div onclick="javascript:handleCloseButton()" class="closeButton"><img src="https://zep.us/images/svg/close__icon.svg" /></div>
 				</header>
-				<div id="buttonBox" class="flex box">
-					<div class="flex onRight ">
-						<div id="prevButton" class="button disable" onclick="javascript:handlePrevButton()">이전 장</div>
-						<div id="nextButton" class="button disable" onclick="javascript:handleNextButton()">다음 장</div>
-					</div>
-				</div>
 				<div class="dialogWrapper">
 					<div id="dialog" class="dialog"></div>
+				</div>
+				<div id="buttonBox" class="flex box">
 				</div>
 			</div>
 		</div>
@@ -144,10 +107,6 @@
 			window.addEventListener("message", (e) => {
 				init(e.data);
 
-				if(dialogFlow.pageList.length != 1){
-					document.getElementById("nextButton").classList.remove('disable');
-				}
-				controlButtonDisable();
 				showDialog(dialogFlow, currentPage);
 			});
 
@@ -159,6 +118,8 @@
 			}
 
 			const showDialog = (dialogFlow, page) => {
+				controlButtonDisplay();
+
 				document.getElementById("dialog").innerHTML = '';
 				if (noteStatus.finishPage < currentPage) {
 					setTimeout(async () => {
@@ -171,7 +132,7 @@
 						}
 						noteStatus.finishPage = currentPage;
 						saveNoteStatus();
-						controlButtonDisable();
+						controlButtonDisplay();
 					}, 200);
 				} else {
 					showFinishedDialog(dialogFlow, page);
@@ -203,7 +164,6 @@
 					if (currentPage > 0) {
 						currentPage = currentPage - 1;
 						
-						controlButtonDisable();
 						showDialog(dialogFlow, currentPage);
 					}
 				}
@@ -214,26 +174,26 @@
 					if (currentPage < dialogFlow.pageList.length-1) {
 						currentPage = currentPage + 1;
 
-						controlButtonDisable();
 						showDialog(dialogFlow, currentPage);
 					}
 				}
 			}
 
-			const controlButtonDisable = () => {
-				const prevButton = document.getElementById("prevButton");
-				const nextButton = document.getElementById("nextButton");
-				const isPrevDisable = prevButton.classList.contains('disable');
-				const isNextDisable = nextButton.classList.contains('disable');
+			const controlButtonDisplay = () => {
+				const buttonBox = document.getElementById("buttonBox");
+				const buttons = `
+					<div class="flex onRight ">
+						<div id="prevButton" class="button disable" onclick="javascript:handlePrevButton()">이전 장</div>
+						<div id="nextButton" class="button disable" onclick="javascript:handleNextButton()">다음 장</div>
+					</div>`;
 
-				if (dialogFlow.pageList.length == 1) {
-					if (!isPrevDisable) prevButton.classList.add('disable');
-					if (!isNextDisable) nextButton.classList.add('disable');
-				} else {
-					if (currentPage > noteStatus.finishPage) {
-						if (!isPrevDisable) prevButton.classList.add('disable');
-						if (!isNextDisable) nextButton.classList.add('disable');
-					}
+				if (dialogFlow.pageList.length != 1 &&currentPage <= noteStatus.finishPage) {
+					buttonBox.innerHTML = buttons;
+
+					const prevButton = document.getElementById("prevButton");
+					const nextButton = document.getElementById("nextButton");
+					const isPrevDisable = prevButton.classList.contains('disable');
+					const isNextDisable = nextButton.classList.contains('disable');
 
 					if (currentPage <= 0) {
 						if (!isPrevDisable) prevButton.classList.add('disable');
@@ -246,6 +206,8 @@
 					} else {
 						if (isNextDisable) nextButton.classList.remove('disable');
 					}
+				} else {
+					buttonBox.innerHTML = '';
 				}
 			}
 
