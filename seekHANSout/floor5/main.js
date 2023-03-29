@@ -17,6 +17,7 @@ App.onJoinPlayer.Add(function (player) {
     noteStatus: {
       flowNo: 0,
       finishPage: -1,
+      isSetChkList: false,
     },
   };
   player.displayRatio = player.isMobile ? 1 : 1.5;
@@ -213,29 +214,34 @@ const openDialog = (type, player, dialogId) => {
 
   player.tag.widgetDialog.sendMessage({
     type,
-    isMobile: player.isMobile,
+    dialogId,
     isWide,
+    isMobile: player.isMobile,
     condition: player.tag.condition,
     noteStatus: player.tag.noteStatus,
-    dialogId,
   });
 };
 
 const handleDialogMessage = (player, msg) => {
+  log(`[handleDialogMessage] type : ${msg.type}`);
   if (msg.type == 'closeDialog') {
     closeDialog(player);
   } else if (msg.type == 'speedUp') {
     !player.tag.isSpeedUp ? speedUp(player) : openToast(player, TEXT_AGAIN_COFFEE, 2);
   } else if (msg.type == 'setCheckList') {
+    log(`[handleDialogMessage] listNo : ${msg.listNo}`);
     setCheckList(player, msg.listNo);
   } else if (msg.type == 'openToast') {
     openToast(player, msg.toast, 2);
+    log(`[handleDialogMessage] toast : ${msg.toast}`);
   } else if (msg.type == 'addCondition') {
+    log(`[handleDialogMessage] condition : ${msg.condition}`);
     player.tag.condition.push(msg.condition);
   } else if (msg.type == 'openHansNote') {
     openNoteButton(player);
   } else if (msg.type == 'saveHansNote') {
-    saveNoteStatus(player, msg);
+    log(`[handleDialogMessage] noteStatus : ${msg.noteStatus}`);
+    player.tag.noteStatus = msg.noteStatus;
   }
 };
 
@@ -287,62 +293,6 @@ const closeNoteButton = (player) => {
   player.tag.widgetNoteButton.destroy();
   player.tag.widgetNoteButton = null;
 };
-
-const saveNoteStatus = (player, msg) => {
-  player.tag.noteStatus = msg.noteStatus;
-};
-
-// const bagDialog = (player) => {
-//   player.showPrompt('보관함의 비밀번호를 입력하세요.', (inputText) => {
-//     if (inputText == BAG_ANSWER) {
-//       player.moveSpeed = 110;
-//       player.tag.speedUp = true;
-//       openDialog(1, player, [{ name: MY_NAME, text: BAG_TEXT }]);
-//       savePlayer(player);
-//     } else {
-//       openDialog(1, player, [{ name: MY_NAME, text: BAG_WRONG_ANSWER }]);
-//     }
-//   });
-// };
-
-// const backToHomeDialog = (player, dialogFlow) => {
-//   if (player.tag.widgetDialog == null) {
-//     player.tag.widgetDialogType = 'BACK_TO_HOME';
-//     player.tag.widgetDialog = player.isMobile
-//       ? player.showWidgetResponsive('widget/dialog.html', 30, 10, 30, 10)
-//       : player.showWidgetResponsive('widget/dialog.html', 35, 30, 35, 30);
-
-//     player.tag.widgetDialog.onMessage.Add(function (player, msg) {
-//       if (msg.type == 'closeDialog' && player.tag.widgetDialog != null) {
-//         player.tag.widgetDialog.destroy();
-//         player.tag.widgetDialog = null;
-//         player.tag.widgetDialogType = null;
-//       }
-//     });
-//   }
-
-//   player.tag.widgetDialog.sendMessage({
-//     type: 1,
-//     condition: player.tag.condition,
-//     dialogFlow,
-//   });
-// };
-
-// const backToHome = (player) => {
-//   player.spawnAt(106, 148, 1);
-//   player.sendUpdated();
-// };
-
-// const ACTION_TYPE = {
-//   1: 'SINGLE_DIALOG',
-//   2: 'INTERACTION_DIALOG',
-//   3: 'MULTI_BUTTON_DIALOG',
-//   4: 'INPUT_DIALOG',
-
-//   9: 'OPEN_PROMPT',
-//   10: 'BACK_TO_SEAT',
-//   11: 'BACK_TO_HOME',
-// };
 
 const TEXT_SPEED_UP_COFFEE = '커피를 마셨더니 몸이 가벼워진 것 같다.';
 const TEXT_AGAIN_COFFEE = '일단 받고 보자..';

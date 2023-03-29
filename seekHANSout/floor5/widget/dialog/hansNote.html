@@ -99,8 +99,7 @@
 			let noteStatus =  {
 				flowNo: 0,
 				finishPage: -1,
-				// startPage: 0,
-				// endPage: -1,
+				isSetChkList: false,
 			}
 			let dialogFlow, currentPage, target, condition;
 
@@ -128,12 +127,12 @@
 							document.getElementById("dialog").innerHTML += `<p id='text${i}'></p>`;
 							const text = textList[i];
 							await typing(i, text);
-							await wait(300);
+							await wait(200);
 						}
 						noteStatus.finishPage = currentPage;
 						saveNoteStatus();
 						controlButtonDisplay();
-					}, 200);
+					}, 150);
 				} else {
 					showFinishedDialog(dialogFlow, page);
 				}
@@ -148,6 +147,17 @@
 					const c = splitText.shift();
 					if (c == ' ') target.innerHTML += '&nbsp;'
 					else target.innerText += c;
+				}
+			}
+
+			const showFinishedDialog = (dialogFlow, page) => {
+				var i = 0;
+				for (text of dialogFlow.pageList[page]) {
+					document.getElementById("dialog").innerHTML += `
+						<p id='text${i}'>
+							${text}
+						</p>`;
+					i++;
 				}
 			}
 
@@ -211,19 +221,12 @@
 				}
 			}
 
-			const showFinishedDialog = (dialogFlow, page) => {
-				var i = 0;
-				for (text of dialogFlow.pageList[page]) {
-					document.getElementById("dialog").innerHTML += `
-						<p id='text${i}'>
-							${text}
-						</p>`;
-					i++;
-				}
-			}
-
 			const saveNoteStatus = () => {
 				console.log('save noteStatus : ', noteStatus);
+				if (!noteStatus.isSetChkList && noteStatus.finishPage == dialogFlow.pageList.length - 1 && currentPage == noteStatus.finishPage ) {
+					window.parent.postMessage({type: "setCheckList", listNo: dialogFlow.listNo }, "*");
+					noteStatus.isSetChkList = true;
+				}
 				window.parent.postMessage({type: "saveHansNote", noteStatus }, "*");
 			}
 
@@ -248,13 +251,12 @@
 						],
 						[
 							"하지만, 현실이 바뀌면",
-							"거울 세계에 바로 반영이 돼서",
-							"알 수 있어요!",
-							"또 놀라운 점은...",
+							"거울 세계가 바로 바뀌어서",
+							"알 수 있고, 또 놀라운 점은...",
 							"이곳이 현실의 2년 후 입니다!",
+							"미래와 현실이 연결된 것이죠!!!",
 						],
 						[
-							"미래와 현실이 연결된 것이죠!!!",
 							"미래를 보면 참 좋을 것 같지만",
 							"미래 상황이 너무 충격적이라...",
 							"이 미래를 바꾸기 위해서",
