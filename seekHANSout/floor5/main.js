@@ -216,9 +216,7 @@ const openDialog = (type, player, dialogId) => {
     type,
     dialogId,
     isWide,
-    isMobile: player.isMobile,
-    condition: player.tag.condition,
-    noteStatus: player.tag.noteStatus,
+    player,
   });
 };
 
