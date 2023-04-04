@@ -90,6 +90,10 @@
 			color: #6758ff;
 		}
 
+		.none {
+			display: none;
+		}
+
 		#button {
 			width: 72px;
 			height: 32px;
@@ -373,9 +377,23 @@
 					options: [{ number: 0, text: '감사합니다!', link: -1 }],
 				},
 			],
-			15: [
-				{ name: NPC_NAME[15], text: '회식, 꼭 가야되나?', options: ['너도 회식 안 가게?'] },
-				{ name: NPC_NAME[15], text: '생각 좀 해보려고!', options: ['어, 어... 나도 생각좀 해봐야겠네 😅'] },
+			15: [ // 애니
+				{
+					name: NPC_NAME[15],
+					text: '이 폭포수... 내가 가야할 곳...',
+					options: [
+						{ number: 0, text: '같이 가자!', link: -1 },
+						{ number: 1, text: '무슨 소리야! 폭포수로 가면 넌 끝이야!', link: 1 },
+					],
+				},
+				{
+					name: NPC_NAME[15],
+					text: '회식, 꼭 가야되나?', 
+					options: [
+						{ number: 0, text: '네, 안녕히 계세요!', link: -1 },
+						{ number: 1, text: '아, 그건 아니에요', link: 1 },
+					],
+				},
 			],
 			16: [{ name: NPC_NAME[16], text: '화장실 앞에 다들 회식 가려고 모인 것 같아요 🤗' }],
 			17: [
@@ -512,7 +530,14 @@
 					options: [{ number: 0, text: 'SE 보관함을 확인해보자.', link: -3, listNo: 4 }],
 				},
 			],
-			36: [{ name: NPC_NAME[36], text: '이거 비밀번호 아직도 예전 그대로네...! 바뀐지가 언젠데!' }],
+			36: [ // 한지
+				{
+					name: NPC_NAME[36],
+					text: '이거 비밀번호 아직도 예전 그대로네...! 바뀐지가 언젠데!',
+					options: [
+						{ number: 0, text: '그럼 비밀번호는 예전 팀 이름이겠네요', link: -1 },
+					]
+				}],
 			37: [ // 리바이 팀장
 				{
 					name: NPC_NAME[37],
