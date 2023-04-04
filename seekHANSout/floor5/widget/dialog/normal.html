@@ -105,7 +105,7 @@
 		}
 
 		.disable {
-			background-color: gray !important;
+			background-color: #c0c0c0 !important;
 		}
 	</style>
 </head>
@@ -136,7 +136,7 @@
 			3: 'IMAGE',
 		};
 
-		let type, name, condition, dialogFlow;
+		let type, condition, dialogFlow;
 		let selectedOptionNo, selectedLink, selectedCheckListNo;
 
 		window.addEventListener("message", (e) => {
@@ -159,8 +159,7 @@
 
 		const init = (data) => {
 			type = ACTION_TYPE[data.type];
-			name = data.player.name;
-			condition = data.player.tag.condition;
+			condition = data.condition;
 			dialogFlow = NPC_DIALOG_FLOW[data.dialogId];
 			selectedOptionNo = -1;
 			selectedLink = -11;
@@ -330,7 +329,15 @@
 			7: [{ name: NPC_NAME[7], text: '분명히 수상하게 생긴 깜둥이를 봤는데...' }],
 			8: [{ name: NPC_NAME[8], text: '이거 이거... 허위 사실 유포 죄로 넣어버릴까' }],
 			9: [{ name: NPC_NAME[9], text: '아니, 이거 하루가 멀다하고 기획이 바뀌냐...?' }],
-			10: [{ name: NPC_NAME[10], text: '특수 엘리베이터로 화물 옮기려면 팀장님께 사원증을 빌려야 하나...?' }],
+			10: [ // 가비
+				{
+					name: NPC_NAME[10],
+					text: '특수 엘리베이터로 화물 옮기려면 팀장님께 사원증을 빌려야 하나...?',
+					options: [
+						{ text: '제가 팀장님께 사원증을 받아서 와볼게요!', link: -1 },
+					],
+				},
+			],
 			11: [{ name: NPC_NAME[11], text: '저는 회의는 zoom보단 slack이 나은 것 같기도 해요 🤔' }],
 			12: [
 				{ name: NPC_NAME[12], text: '무슨 급한 일 있으세요...?', options: [{ number: 0, text: '아니요...', link: -1 }] },
@@ -509,7 +516,7 @@
 			37: [ // 리바이 팀장
 				{
 					name: NPC_NAME[37],
-					text: `안녕하세요~ ${name}님. 퇴근 하시나요?`,
+					text: `안녕하세요~ 퇴근 하시나요?`,
 					options: [
 						{ number: 0, text: '네, 안녕히 계세요!', link: -1 },
 						{ number: 1, text: '아, 그건 아니에요', link: 1 },
@@ -519,19 +526,19 @@
 					name: NPC_NAME[37],
 					text: '다른 볼일이라도 있으신거에요?',
 					options: [
-						{ number: 0, text: '회식 못 갈 것 같아서요.', link: 2 },
-						{ number: 1, text: '혹시 사원증 좀 빌려주실 수 있나요?', link: 3 },
+						{ number: 0, text: '면담 좀 요청드릴게요..', link: 2 },
+						{ number: 1, text: '혹시 사원증 좀 빌려주실 수 있을까요?', link: 3 },
 						{ number: 2, text: '누구를 좀 도와드리려고 하는데...', link: 4 },
 					],
 				},
 				{
 					name: NPC_NAME[37],
-					text: '그럴 수는 없죠. 필참이에요. 가시죠.',
-					options: [{ number: 0, text: '필참인가요...?', link: -4 }],
+					text: '아이고... 힘드시죠... 내일 한 번 보시죠!',
+					options: [{ number: 0, text: '감사합니다...!', link: -1 }],
 				},
 				{
 					name: NPC_NAME[37],
-					text: '갑자기 제 사원증은 왜 찾으세요? 그럼 저는 어떻게 해요?',
+					text: '제 사원증은 갑자기 왜... 그럼 저는 어떻게 해요?',
 					options: [{ number: 0, text: '아... 그건 그렇네요... 죄송합니다.', link: -1 }],
 				},
 				{
@@ -540,16 +547,16 @@
 					options: [
 						{ number: 0, text: '치프님이요.', link: 5 },
 						{
-							number: 1, 
+							number: 1,
 							condition: 'help',
-							text: '== 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 화물) ==',
+							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 화물) -',
 							conditionText: 'MD팀 가비님이요.',
 							link: 6,
 						},
 						{
-							number: 2, 
+							number: 2,
 							condition: 'black',
-							text: '== 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 깜둥이) ==',
+							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 깜둥이) -',
 							conditionText: 'CN팀 파르코님이요.',
 							link: 7,
 						},
@@ -563,7 +570,7 @@
 				{
 					name: NPC_NAME[37],
 					text: '아, 물건들 옮기고 계시는 거 보긴 했어요.',
-					options: [{ number: 0, text: '화물용 엘리베이터를 사용하면 더 좋을 것 같아서요. 사원증좀 빌려주실 수 있을까요?', link: 8 }],
+					options: [{ number: 0, text: '화물 엘리베이터를 사용하면 더 좋을 것 같아서요!', link: 8 }],
 				},
 				{
 					name: NPC_NAME[37],

@@ -110,8 +110,8 @@
 			});
 
 			const init = (data) => {
-				condition =  data.player.tag.condition;
-				noteStatus = data.player.tag.noteStatus;
+				condition =  data.condition;
+				noteStatus = data.noteStatus;
 				dialogFlow = NOTE_FLOW[noteStatus.flowNo];
 				currentPage = 0;
 			}

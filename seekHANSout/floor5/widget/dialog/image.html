@@ -86,7 +86,7 @@
 
 			window.addEventListener("message", (e) => {
 				isWide = e.data.isWide;
-				condition =  e.data.player.tag.condition;
+				condition =  e.data.condition;
 				imageList = IMAGE_FLOW[e.data.dialogId].imageList;
 				nextButtonText = IMAGE_FLOW[e.data.dialogId].nextButtonText ? IMAGE_FLOW[e.data.dialogId].nextButtonText : '다음';
 				chkListNo = IMAGE_FLOW[e.data.dialogId].chkListNo ? IMAGE_FLOW[e.data.dialogId].chkListNo : -1;
@@ -142,10 +142,6 @@
 						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardOnToilet.jpg?raw=true",
 						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardMemo1.png?raw=true"]
 				},
-				100: {
-					imageList: [
-						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/map.png?raw=true"]
-				}
 			}
 		</script>
 	</body>

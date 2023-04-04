@@ -40,7 +40,8 @@ App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
         case '3': // image
           openDialog(obj.text, sender, Number(obj.param1));
           // if (obj.param1 == '7' && !sender.tag.condition.includes('black')) sender.tag.condition += 'black';
-          // else if (obj.param1 == '10' && !sender.tag.condition.includes('help')) sender.tag.condition += 'help';
+          // else
+          if (obj.param1 == '10' && !sender.tag.condition.includes('help')) sender.tag.condition.push('help');
           // else if (obj.param1 == '25' && !sender.tag.condition.includes('clean')) sender.tag.condition += 'clean';
           // openDialog(obj.text, sender, NPC_DIALOG_FLOW[obj.param1]);
           break;
@@ -162,7 +163,7 @@ const startTimer = (player) => {
   });
   player.tag.widgetTimer.onMessage.Add(function (player, msg) {
     if (msg.type == 'timeOut') {
-      App.sayToAll(`아아... ${player.name}님이 회식으로 가게 되었습니다!`, 0xff0000);
+      App.sayToAll(`아아... ${player.name}님이 세상을 구원하지 못했습니다...!`, 0xff0000);
       // backToHome(player);
       // backToHomeDialog(player, [{ name: MY_NAME, text: HOME_TEXT }]);
       // player.tag.widgetTimer.destroy();
@@ -216,7 +217,8 @@ const openDialog = (type, player, dialogId) => {
     type,
     dialogId,
     isWide,
-    player,
+    condition: player.tag.condition,
+    noteStatus: player.noteStatus,
   });
 };
 
