@@ -37,6 +37,7 @@ App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
           }
         case '1': // normal
         case '2': // input
+          if (obj.text == '2' && sender.tag.condition.includes('hansNote')) obj.text = 3;
         case '3': // image
           openDialog(obj.text, sender, Number(obj.param1));
           // if (obj.param1 == '7' && !sender.tag.condition.includes('black')) sender.tag.condition += 'black';
@@ -44,14 +45,6 @@ App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
           if (obj.param1 == '10' && !sender.tag.condition.includes('help')) sender.tag.condition.push('help');
           // else if (obj.param1 == '25' && !sender.tag.condition.includes('clean')) sender.tag.condition += 'clean';
           // openDialog(obj.text, sender, NPC_DIALOG_FLOW[obj.param1]);
-          break;
-        case '9':
-          if (obj.param1 == '100') {
-            bagDialog(sender);
-          }
-          break;
-        case '10':
-          backToSeatDialog(sender, NPC_DIALOG_FLOW[obj.param1]);
           break;
         default:
           break;
@@ -188,7 +181,7 @@ const dialogType = {
 const dialogSize = {
   0: [20, 5, 20, 5, 35, 25, 35, 25],
   1: [20, 5, 20, 5, 35, 25, 35, 25],
-  2: [20, 5, 20, 5, 25, 25, 25, 25],
+  2: [20, 5, 20, 5, 20, 25, 20, 25],
   3: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
   4: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
 };

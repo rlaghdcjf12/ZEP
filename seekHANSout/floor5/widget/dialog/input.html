@@ -101,6 +101,7 @@
 						onkeyup="checkInput()"
 						onkeypress="keyPress(event)"
 					/>
+					<p>어떤 책을 꺼내볼까?</p>
 					<p id="wrongText"></p>
 				</div>
 				<div class="flex box">
@@ -118,11 +119,11 @@
 				condition = e.data.condition;
 				inputInfo = INPUT_FLOW[e.data.dialogId];
 
-				if (condition.includes(inputInfo.condition)) {
-					// window.parent.postMessage({type: "openToast", toast: inputInfo.conditionText}, "*");
-					document.getElementById('contents').innerHTML = inputInfo.conditionText;
-					return;
-				}
+				// if (condition.includes(inputInfo.condition)) {
+				// 	// window.parent.postMessage({type: "openToast", toast: inputInfo.conditionText}, "*");
+				// 	document.getElementById('contents').innerHTML = inputInfo.conditionText;
+				// 	return;
+				// }
 
 				if (inputInfo.type == 'image') {
 					const IMG = `
@@ -181,7 +182,7 @@
 					wrongText: '잘 생각해보자..',
 					answerChkListNo: 5,
 					condition: 'hansNote',
-					conditionText: '더이상 필요한 책이 없는 것 같다.'
+					// conditionText: '더이상 필요한 책이 없는 것 같다.'
 				},
 			]
 		</script>

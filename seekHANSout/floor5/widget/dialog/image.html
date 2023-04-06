@@ -127,8 +127,10 @@
 			}
 
 			const handleCloseButton = () => {
-				if (isChkLast && chkListNo != -1)
+				if (isChkLast && chkListNo != -1) {
 					window.parent.postMessage({type: "setCheckList", listNo: chkListNo}, "*");
+					window.parent.postMessage({type: "closeDialog"}, "*");
+				}
 				else {
 					window.parent.postMessage({type: "closeDialog"}, "*");
 				}
