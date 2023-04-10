@@ -37,13 +37,16 @@ App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
           }
         case '1': // normal
         case '2': // input
-          if (obj.text == '2' && sender.tag.condition.includes('hansNote')) obj.text = 3;
+          if (obj.text == '2' && obj.param1 == '0' && sender.tag.condition.includes('hansNote')) {
+            obj.text = '1';
+            obj.param1 = '7';
+          }
         case '3': // image
           openDialog(obj.text, sender, Number(obj.param1));
           // if (obj.param1 == '7' && !sender.tag.condition.includes('black')) sender.tag.condition += 'black';
           // else
           if (obj.param1 == '10' && !sender.tag.condition.includes('help')) sender.tag.condition.push('help');
-          // else if (obj.param1 == '25' && !sender.tag.condition.includes('clean')) sender.tag.condition += 'clean';
+          else if (obj.param1 == '22' && sender.tag.listNo == 6) setCheckList(sender, 7);
           // openDialog(obj.text, sender, NPC_DIALOG_FLOW[obj.param1]);
           break;
         default:
@@ -76,6 +79,12 @@ App.addOnLocationTouched('startLimit', function (player) {
   if (player.tag.condition.includes('noName')) {
     player.spawnAtLocation('startLimitRespawn', 4);
     openToast(player, '쟝을 먼저 만나보자.');
+  }
+});
+App.addOnLocationTouched('waterFall', function (player) {
+  if (player.tag.condition.includes('hansNote') && [6, 7].includes(player.tag.listNo)) {
+    player.tag.listNo == 8;
+    setCheckList(player, 8);
   }
 });
 
@@ -131,8 +140,9 @@ const openSetNameDialog = (player) => {
 
 const initCheckList = (player) => {
   player.tag.widgetCheckList = player.isMobile
-    ? player.showWidgetResponsive('widget/checkList.html', 12, 50, 78, 2)
-    : player.showWidget('widget/checkList.html', 'topLeft', 250, 80);
+    ? player.showWidgetResponsive('widget/checkList.html', 12, 47, 78, 2)
+    : player.showWidget('widget/checkList.html', 'topLeft', 280, 80);
+  player.tag.listNo = 0;
   player.tag.widgetCheckList.sendMessage({
     listNo: 0,
     isMobile: player.isMobile,
@@ -140,6 +150,7 @@ const initCheckList = (player) => {
 };
 
 const setCheckList = (player, listNo) => {
+  player.tag.listNo = listNo;
   player.tag.widgetCheckList.sendMessage({
     listNo,
     isMobile: player.isMobile,
@@ -157,10 +168,6 @@ const startTimer = (player) => {
   player.tag.widgetTimer.onMessage.Add(function (player, msg) {
     if (msg.type == 'timeOut') {
       App.sayToAll(`아아... ${player.name}님이 세상을 구원하지 못했습니다...!`, 0xff0000);
-      // backToHome(player);
-      // backToHomeDialog(player, [{ name: MY_NAME, text: HOME_TEXT }]);
-      // player.tag.widgetTimer.destroy();
-      // player.tag.widgetTimer = null;
     }
   });
 };
@@ -182,26 +189,23 @@ const dialogSize = {
   0: [20, 5, 20, 5, 35, 25, 35, 25],
   1: [20, 5, 20, 5, 35, 25, 35, 25],
   2: [20, 5, 20, 5, 20, 25, 20, 25],
-  3: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
-  4: [20, 5, 20, 5, 20, 30, 20, 30, 20, 20, 20, 20],
+  3: [20, 5, 20, 5, 20, 30, 20, 30],
+  4: [20, 5, 20, 5, 20, 30, 20, 30],
 };
 
 const openDialog = (type, player, dialogId) => {
-  let isWide = false;
   if (type == 0 && !player.tag.condition.includes('noName')) {
     type = 1; // 이름 설정 후 type 보정
-  } else if (type == 3 && dialogId >= 100) {
-    isWide = true;
   }
 
   if (player.tag.widgetDialog == null) {
     player.tag.widgetDialogType = dialogType[type];
     player.tag.widgetDialog = player.showWidgetResponsive(
       `widget/dialog/${dialogType[type]}.html`,
-      dialogSize[type][player.isMobile ? 0 : !isWide ? 4 : 8],
-      dialogSize[type][player.isMobile ? 1 : !isWide ? 5 : 9],
-      dialogSize[type][player.isMobile ? 2 : !isWide ? 6 : 10],
-      dialogSize[type][player.isMobile ? 3 : !isWide ? 7 : 11]
+      dialogSize[type][player.isMobile ? 0 : 4],
+      dialogSize[type][player.isMobile ? 1 : 5],
+      dialogSize[type][player.isMobile ? 2 : 6],
+      dialogSize[type][player.isMobile ? 3 : 7]
     );
     player.tag.widgetDialog.onMessage.Add((player, msg) => handleDialogMessage(player, msg));
   }
@@ -209,31 +213,36 @@ const openDialog = (type, player, dialogId) => {
   player.tag.widgetDialog.sendMessage({
     type,
     dialogId,
-    isWide,
     condition: player.tag.condition,
-    noteStatus: player.noteStatus,
+    noteStatus: player.tag.noteStatus,
   });
 };
 
 const handleDialogMessage = (player, msg) => {
-  log(`[handleDialogMessage] type : ${msg.type}`);
   if (msg.type == 'closeDialog') {
     closeDialog(player);
   } else if (msg.type == 'speedUp') {
     !player.tag.isSpeedUp ? speedUp(player) : openToast(player, TEXT_AGAIN_COFFEE, 2);
   } else if (msg.type == 'setCheckList') {
-    log(`[handleDialogMessage] listNo : ${msg.listNo}`);
     setCheckList(player, msg.listNo);
+    if (msg.listNo == 8) {
+      openToast(player, '한스의 노트를 다시 확인해보자.', 2);
+      setCheckList(player, 9);
+      player.tag.condition.push('Complete1');
+      player.tag.condition.noteStatus = {
+        flowNo: 1,
+        finishPage: -1,
+        isSetChkList: false,
+      };
+    }
   } else if (msg.type == 'openToast') {
     openToast(player, msg.toast, 2);
-    log(`[handleDialogMessage] toast : ${msg.toast}`);
   } else if (msg.type == 'addCondition') {
     log(`[handleDialogMessage] condition : ${msg.condition}`);
     player.tag.condition.push(msg.condition);
   } else if (msg.type == 'openHansNote') {
     openNoteButton(player);
   } else if (msg.type == 'saveHansNote') {
-    log(`[handleDialogMessage] noteStatus : ${msg.noteStatus}`);
     player.tag.noteStatus = msg.noteStatus;
   }
 };

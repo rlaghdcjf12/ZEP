@@ -110,10 +110,12 @@
 			});
 
 			const init = (data) => {
+				console.log('hansNote init data : ', data);
 				condition =  data.condition;
 				noteStatus = data.noteStatus;
 				dialogFlow = NOTE_FLOW[noteStatus.flowNo];
 				currentPage = 0;
+				console.log('dialogFlow : ', dialogFlow);
 			}
 
 			const showDialog = (dialogFlow, page) => {
@@ -232,7 +234,6 @@
 
 			const NOTE_FLOW = [
 				{
-					link: -3,
 					listNo: 6,
 					pageList: [
 						[
@@ -252,15 +253,17 @@
 						[
 							"하지만, 현실이 바뀌면",
 							"거울 세계가 바로 바뀌어서",
-							"알 수 있고, 또 놀라운 점은...",
+							"현실의 상황이 바뀌었다는 걸",
+							"알 수 있죠!",
+							"또 놀라운 점은...",
 							"이곳이 현실의 2년 후 입니다!",
-							"미래와 현실이 연결된 것이죠!!!",
 						],
 						[
+							"미래와 현실이 연결된 것이죠!!!",
 							"미래를 보면 참 좋을 것 같지만",
 							"미래 상황이 너무 충격적이라...",
 							"이 미래를 바꾸기 위해서",
-							"몇 가지 부탁이 있어요!",
+							"몇 가지 도움이 필요합니다!",
 						],
 						[
 							"첫 번째는 지금 현실세계에",
@@ -268,6 +271,18 @@
 							"분이 계시는데요...",
 							"이분을 막아주세요...!",
 							"기다리고 있겠습니다!!"
+						]
+					]
+				},
+				{
+					listNo: 10,
+					pageList: [
+						[
+							"안녕하세요!",
+							"혹시... 글자가 보이시나요?!",
+							"많이 놀라셨죠..! 한스입니다!!",
+							"이 책을 열어보시는 분이 계시다니...",
+							"정말 다행입니다!!"
 						]
 					]
 				}

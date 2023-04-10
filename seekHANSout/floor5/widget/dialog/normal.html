@@ -60,7 +60,7 @@
 			width: 100%;
 		}
 
-		.optionGuide {
+		#optionGuide {
 			width: 10%;
 			height: 32px;
 
@@ -88,10 +88,6 @@
 		.option.selected {
 			background-color: #e9e8ff;
 			color: #6758ff;
-		}
-
-		.none {
-			display: none;
 		}
 
 		#button {
@@ -124,45 +120,26 @@
 				</div>
 			</header>
 			<p id="text"></p>
-			<div id="optionBox" class="Box none">
-				<div class="optionGuide">>></div>
-				<div id="options"></div>
-			</div>
-			<div class="Box">
-				<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>
-			</div>
+			<div id="optionBox" class="Box"></div>
+			<div id="buttonBox" class="Box"></div>
 		</div>
 	</div>
 	<script type="text/javascript">
-		const ACTION_TYPE = {
-			1: 'NORMAL',
-			2: 'INPUT',
-			3: 'IMAGE',
-		};
-
-		let type, condition, dialogFlow;
+		let condition, dialogFlow;
 		let selectedOptionNo, selectedLink, selectedCheckListNo;
 
 		window.addEventListener("message", (e) => {
 			init(e.data);
 
-			if (type == ACTION_TYPE[1]) {
-				document.getElementById("name").innerText = dialogFlow[0].name;
-				document.getElementById("text").innerText = dialogFlow[0].text;
+			document.getElementById("name").innerText = dialogFlow[0].name;
+			document.getElementById("text").innerText = dialogFlow[0].text;
 
-				if (dialogFlow[0].options) {
-					document.getElementById("optionBox").classList.remove('none');
-					setOptions(0);
-				}
-			} else if (type == ACTION_TYPE[2]) {
-
-			} else if (type == ACTION_TYPE[3]) {
-
+			if (dialogFlow[0].options) {
+				setOptions(0);
 			}
 		});
 
 		const init = (data) => {
-			type = ACTION_TYPE[data.type];
 			condition = data.condition;
 			dialogFlow = NPC_DIALOG_FLOW[data.dialogId];
 			selectedOptionNo = -1;
@@ -171,6 +148,14 @@
 		}
 
 		const setOptions = (flowNo) => {
+			if (dialogFlow[flowNo].condition && !condition.includes(dialogFlow[flowNo].condition)) return;
+
+			document.getElementById("optionBox").innerHTML = `
+				<div id="optionGuide">>></div>
+				<div id="options"></div>`;
+			document.getElementById("buttonBox").innerHTML = `
+				<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>`;
+			
 			let Options = document.getElementById("options");
 			Options.innerHTML = '';
 
@@ -269,6 +254,7 @@
 			19: 'MD 구동매',
 			20: 'CD 고애신',
 			21: 'MS 서민영',
+			22: '환경미화 여사님',
 			25: '치프',
 			26: 'AG 피크',
 			27: 'MI 문동은',
@@ -337,9 +323,6 @@
 				{
 					name: NPC_NAME[10],
 					text: '특수 엘리베이터로 화물 옮기려면 팀장님께 사원증을 빌려야 하나...?',
-					options: [
-						{ text: '제가 팀장님께 사원증을 받아서 와볼게요!', link: -1 },
-					],
 				},
 			],
 			11: [{ name: NPC_NAME[11], text: '저는 회의는 zoom보단 slack이 나은 것 같기도 해요 🤔' }],
@@ -380,18 +363,33 @@
 			15: [ // 애니
 				{
 					name: NPC_NAME[15],
-					text: '이 폭포수... 내가 가야할 곳...',
+					text: '물방울들이 순차적으로 떨어지는 이 아름다운 폭포수... 이 작은 물방울들은 본인이 어디로 가게 될 지 알까?',
+					condition: 'hansNote',
 					options: [
-						{ number: 0, text: '같이 가자!', link: -1 },
-						{ number: 1, text: '무슨 소리야! 폭포수로 가면 넌 끝이야!', link: 1 },
+						{ number: 0, text: '그저 맹목적으로 나아갈 뿐이지.', link: 1 },
+						{ number: 1, text: '(좀 이상한 것 같다.)', link: -1 },
 					],
 				},
 				{
 					name: NPC_NAME[15],
-					text: '회식, 꼭 가야되나?', 
+					text: '나도 공감해. 이 작은 물방울들은 앞으로 강, 계곡이 되었다가 결국 바다로 모이겠지. 하지만 본인이 강인지, 계곡인지, 바다인지 모를거야.',
 					options: [
-						{ number: 0, text: '네, 안녕히 계세요!', link: -1 },
-						{ number: 1, text: '아, 그건 아니에요', link: 1 },
+						{ number: 0, text: '(무슨 말을 하려는 지 모르겠다.)', link: -1 },
+						{ number: 1, text: '한 걸음 떨어져서 돌아볼 필요가 있지.', link: 2 },
+					],
+				},
+				{
+					name: NPC_NAME[15],
+					text: '맞아. 본인이 세상에서 어떤 의미인가, 다른 물방울들이 가는 대로 마냥 따라온 건 아닌가.',
+					options: [
+						{ number: 0, text: '앞으로 어떤 물방울이고 싶은가.', link: 3 },
+					],
+				},
+				{
+					name: NPC_NAME[15],
+					text: '그렇네. 나도 내가 너무 작은 부분만 봤던 게 아닌 지 생각이 드네. 이렇게 나하고 대화 해줘서 고마워. 덕분에 마음이 편안해졌어.',
+					options: [
+						{ number: 0, text: '편안해졌다니 다행이네', link: -3, listNo: 9 },
 					],
 				},
 			],
@@ -411,6 +409,15 @@
 					name: NPC_NAME[21],
 					text: 'Oh~ 들어가려고 하시는구나~? 여기 여자화장실에 들어가려는 남자가 있어요!!',
 					options: ['아.. 아니.. 들어가려는 건 아니에요..!'],
+				},
+			],
+			22: [
+				{
+					name: NPC_NAME[22],
+					text: '여기 엘리베이터 내부에 폭포수가 쏟아지고 있어요.. 조심하세요!',
+					options: [
+						{ number: 0, text: '엘리베이터에 무슨 폭포수...???', link: -1},
+					],
 				},
 			],
 			25: [
@@ -578,13 +585,6 @@
 							conditionText: 'MD팀 가비님이요.',
 							link: 6,
 						},
-						{
-							number: 2,
-							condition: 'black',
-							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 깜둥이) -',
-							conditionText: 'CN팀 파르코님이요.',
-							link: 7,
-						},
 					],
 				},
 				{
@@ -595,12 +595,7 @@
 				{
 					name: NPC_NAME[37],
 					text: '아, 물건들 옮기고 계시는 거 보긴 했어요.',
-					options: [{ number: 0, text: '화물 엘리베이터를 사용하면 더 좋을 것 같아서요!', link: 8 }],
-				},
-				{
-					name: NPC_NAME[37],
-					text: '파르코님? 아~ 깜둥이 찾고 있던데. 무시하세요~',
-					options: [{ number: 0, text: '네!', link: -1 }],
+					options: [{ number: 0, text: '화물 엘리베이터를 사용하면 더 좋을 것 같아서요!', link: 7 }],
 				},
 				{
 					name: NPC_NAME[37],
