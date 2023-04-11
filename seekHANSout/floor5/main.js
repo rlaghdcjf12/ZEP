@@ -37,9 +37,11 @@ App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
           }
         case '1': // normal
         case '2': // input
-          if (obj.text == '2' && obj.param1 == '0' && sender.tag.condition.includes('hansNote')) {
-            obj.text = '1';
-            obj.param1 = '7';
+          if (obj.text == '2' && obj.param1 == '0') {
+            if (sender.tag.condition.includes('hansNote')) {
+              obj.text = '1';
+              obj.param1 = '7';
+            }
           }
         case '3': // image
           openDialog(obj.text, sender, Number(obj.param1));
@@ -244,6 +246,8 @@ const handleDialogMessage = (player, msg) => {
     openNoteButton(player);
   } else if (msg.type == 'saveHansNote') {
     player.tag.noteStatus = msg.noteStatus;
+  } else if (msg.type == 'nextDialog') {
+    openDialog(msg.dialogType, player, msg.link);
   }
 };
 

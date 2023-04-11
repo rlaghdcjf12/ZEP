@@ -1,189 +1,248 @@
 <html style="overflow: hidden">
-	<head>
-		<style type="text/css">
-			.container {
-				background-color: rgba(255, 255, 255, 0);
-				font-size: 14px;
-			}
 
-			#dialog {
-				height: calc(min(80vw, 320px) + 150px);
-				padding: 5px;
+<head>
+	<style type="text/css">
+		.container {
+			background-color: rgba(255, 255, 255, 0);
+			font-size: 14px;
+		}
 
-				background-color: rgb(255, 255, 255);
+		#dialog {
+			padding: 5px;
 
-				font-size: 14px;
-				color: black;
-			}
+			background-color: rgb(255, 255, 255);
 
-			.dialogWrapper {
-				height: 100%;
-				padding: 20px;
+			font-size: 14px;
+			color: black;
+		}
 
-				border: solid 3px dimgray;
-				border-radius: 10px;
-				background-color: white;
-			}
+		.dialogWrapper {
+			padding: 20px;
 
-			.imageWrapper {
-				width: min(80vw, 320px);
-				height: min(80vw, 320px);
+			border: solid 3px dimgray;
+			border-radius: 10px;
+			background-color: white;
+		}
 
-				margin: 0 auto;
-			}
+		.imageDialog {
+			height: calc(min(80vw, 320px) + 150px);
+		}
 
-			img {
-				width: 100%;
-				height: 100%;
-			}
+		.textDialog {
+			height: calc(min(20vw, 80px) + 150px);
+			margin: calc(min(30vw, 120px)) 0 calc(min(40vw, 160px));
+		}
 
-			.box {
-				width: 100%;
-				margin-top: 4px;
-			}
+		header {
+			display: flex;
+		}
 
-			.flex {
-				display: flex;
-			}
+		h3 {
+			margin: 0;
+		}
 
-			.onRight {
-				margin-left: auto;
-			}
+		.closeButton {
+			margin-left: auto;
+			font-size: 20px;
+			font-weight: 600;
 
-			.button {
-				width: 72px;
-				height: 32px;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none
+		}
 
-				border: solid 1px white;
-				border-radius: 4px;
-				background-color: #6758ff;
+		.closeButton img {
+			width: 24px;
+			height: 24px;
+		}
 
-				line-height: 32px;
-				color: white;
-				text-align: center;
-			}
-			
-			#answer {
-				width: 80%;
-				height: 32px;
+		#question {
+			margin: 8px 0;
+		}
 
-				margin: 12px 10% 8px 10%;
+		.imageWrapper {
+			width: min(80vw, 320px);
+			height: min(80vw, 320px);
 
-				border: 1px solid #ccc;
-				border-radius: 4px;
-			}
+			margin: 0 auto;
+		}
 
-			#answer:focus {
-				outline: none !important;
-				border: 1px solid #6758ff;
-			}
+		img {
+			width: 100%;
+			height: 100%;
+		}
 
-			#wrongText {
-				margin: 2px auto;
+		.box {
+			width: 100%;
+			margin-top: 4px;
+		}
 
-				text-align: center;
-				font-size: 12px;
-				color: red;
-			}
+		.flex {
+			display: flex;
+		}
 
-			.disable {
-				background-color: gray !important;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-			<div id="dialog" class="dialogWrapper">
-				<div id="contents"></div>
-				<div>
-					<input
-						id="answer"
-						onkeyup="checkInput()"
-						onkeypress="keyPress(event)"
-					/>
-					<p>어떤 책을 꺼내볼까?</p>
-					<p id="wrongText"></p>
+		.onRight {
+			margin-left: auto;
+		}
+
+		.button {
+			width: 72px;
+			height: 32px;
+
+			border: solid 1px white;
+			border-radius: 4px;
+			background-color: #6758ff;
+
+			line-height: 32px;
+			color: white;
+			text-align: center;
+		}
+
+		#answer {
+			width: 80%;
+			height: 32px;
+
+			margin: 12px 10% 8px 10%;
+
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+
+		#answer:focus {
+			outline: none !important;
+			border: 1px solid #6758ff;
+		}
+
+		#wrongText {
+			margin: 2px auto;
+
+			text-align: center;
+			font-size: 12px;
+			color: red;
+		}
+
+		.disable {
+			background-color: gray !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div id="dialog" class="dialogWrapper">
+			<header>
+				<h3 id="name"></h3>
+				<div onclick="javascript:handleCloseButton()" class="closeButton">
+					<img src="https://zep.us/images/svg/close__icon.svg" />
 				</div>
-				<div class="flex box">
-					<div class="flex onRight ">
-						<div id="confirm" class="button disable" onclick="javascript:handleConfirmButton()">확인</div>
-						<div class="button" onclick="javascript:handleCloseButton()">취소</div>
-					</div>
+			</header>
+			<div id="question"></div>
+			<div id="contents"></div>
+			<div>
+				<input id="answer" onkeyup="checkInput()" onkeypress="keyPress(event)" />
+				<p id="wrongText"></p>
+			</div>
+			<div class="flex box">
+				<div class="flex onRight ">
+					<div id="confirm" class="button disable" onclick="javascript:handleConfirmButton()">확인</div>
+					<div class="button" onclick="javascript:handleCloseButton()">취소</div>
 				</div>
 			</div>
 		</div>
-		<script type="text/javascript">
-			let condition, inputInfo, isChkLast, chkListNo;
+	</div>
+	<script type="text/javascript">
+		let condition, inputInfo, isChkLast, chkListNo;
 
-			window.addEventListener("message", (e) => {
-				condition = e.data.condition;
-				inputInfo = INPUT_FLOW[e.data.dialogId];
+		window.addEventListener("message", (e) => {
+			init(e.data);
 
-				// if (condition.includes(inputInfo.condition)) {
-				// 	// window.parent.postMessage({type: "openToast", toast: inputInfo.conditionText}, "*");
-				// 	document.getElementById('contents').innerHTML = inputInfo.conditionText;
-				// 	return;
-				// }
-
-				if (inputInfo.type == 'image') {
-					const IMG = `
+			if (inputInfo.type == 'image') {
+				const IMG = `
 						<div class="imageWrapper">
 							<img src="${inputInfo.image}" alt="inputImage"/>
 						</div>`;
-					document.getElementById('contents').innerHTML = IMG;
-				} else if (inputInfo.type == 'text') {
-					// text일 경우
-				}
-				// chkListNo = IMAGE_FLOW[e.data.dialogId].chkListNo ? IMAGE_FLOW[e.data.dialogId].chkListNo : -1;
-			});
-
-			const checkInput = () => {
-				let input = document.getElementById("answer").value;
-				if (input != '' && input != null) {
-					document.getElementById("confirm").classList.remove("disable");
-				}
-				else if (!document.getElementById("confirm").classList.contains("disable")) {
-					document.getElementById("confirm").classList.add("disable");
-				}
+				document.getElementById('contents').innerHTML = IMG;
+				document.getElementById('dialog').classList.add('imageDialog');
+			} else if (inputInfo.type == 'text') {
+				document.getElementById('dialog').classList.add('textDialog');
 			}
+		});
 
-			const keyPress = (e) => {
-				if (e.keyCode == 13) handleConfirmButton();
+		const init = (data) => {
+			condition = data.condition;
+			inputInfo = INPUT_FLOW[data.dialogId];
+			if (condition.includes(inputInfo.condition) && inputInfo.nextDialogLink) {
+				inputInfo = INPUT_FLOW[inputInfo.nextDialogLink];
 			}
+			document.getElementById('question').innerHTML = inputInfo.questionText;
+			document.getElementById('name').innerHTML = inputInfo.name;
+		}
 
-			const handleConfirmButton = () => {
-				if (document.getElementById('answer').value == inputInfo.answer){
-					window.parent.postMessage({type: "openToast", toast: inputInfo.answerText}, "*");
-					
-					if (inputInfo.answerChkListNo)
-						window.parent.postMessage({type: "setCheckList", listNo: inputInfo.answerChkListNo}, "*");
-					if (inputInfo.condition)
-						window.parent.postMessage({type: "addCondition", condition: inputInfo.condition}, "*");
-					
-					if (inputInfo.answer == '한스노트')
-						window.parent.postMessage({type: "openHansNote", condition: inputInfo.condition}, "*");
-					handleCloseButton();
-				}
-				else {
-					document.getElementById('wrongText').innerText = inputInfo.wrongText;
-				}
+		const checkInput = () => {
+			let input = document.getElementById("answer").value;
+			if (input != '' && input != null) {
+				document.getElementById("confirm").classList.remove("disable");
 			}
-
-			const handleCloseButton = () => {
-				window.parent.postMessage({type: "closeDialog"}, "*");
+			else if (!document.getElementById("confirm").classList.contains("disable")) {
+				document.getElementById("confirm").classList.add("disable");
 			}
+		}
 
-			const INPUT_FLOW = [
-				{	
-					type: 'image',
-					image: 'https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansNoteInSE.png?raw=true',
-					answer: '한스노트',
-					answerText: 'SE 보관함에서 한스노트를 꺼냈다.',
-					wrongText: '잘 생각해보자..',
-					answerChkListNo: 5,
-					condition: 'hansNote',
-				},
-			]
-		</script>
-	</body>
+		const keyPress = (e) => {
+			if (e.keyCode == 13) handleConfirmButton();
+		}
+
+		const handleConfirmButton = () => {
+			if (document.getElementById('answer').value == inputInfo.answer) {
+				window.parent.postMessage({ type: "openToast", toast: inputInfo.answerText }, "*");
+
+				if (inputInfo.answerChkListNo)
+					window.parent.postMessage({ type: "setCheckList", listNo: inputInfo.answerChkListNo }, "*");
+				if (inputInfo.condition)
+					window.parent.postMessage({ type: "addCondition", condition: inputInfo.condition }, "*");
+				if (inputInfo.nextDialogLink)
+					window.parent.postMessage({ type: "nextDialog", dialogType: inputInfo.nextDialogType, link: inputInfo.nextDialogLink }, "*");
+
+				if (inputInfo.answer == '한스노트')
+					window.parent.postMessage({ type: "openHansNote", condition: inputInfo.condition }, "*");
+				handleCloseButton();
+
+			}
+			else {
+				document.getElementById('wrongText').innerText = inputInfo.wrongText;
+			}
+		}
+
+		const handleCloseButton = () => {
+			window.parent.postMessage({ type: "closeDialog" }, "*");
+		}
+
+		const INPUT_FLOW = [
+			{
+				type: 'text',
+				name: 'SE 보관함',
+				questionText: 'SE 보관함의 비밀번호를 입력하세요. (영문 소문자 5글자)',
+				answer: 'build',
+				answerText: 'SE 보관함을 열었다.',
+				wrongText: '비밀번호가 틀린 것 같다.',
+				condition: 'openSE',
+				nextDialogType: 2,
+				nextDialogLink: 1,
+			},
+			{
+				type: 'image',
+				name: 'SE 보관함',
+				image: 'https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansNoteInSE.png?raw=true',
+				questionText: '어떤 책을 꺼내볼까?',
+				answer: '한스노트',
+				answerText: 'SE 보관함에서 한스노트를 꺼냈다.',
+				wrongText: '잘 생각해보자..',
+				answerChkListNo: 5,
+				condition: 'hansNote',
+			},
+		]
+	</script>
+</body>
+
 </html>
