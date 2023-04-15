@@ -151,7 +151,7 @@ const startTimer = (player) => {
   });
   player.tag.widgetTimer.onMessage.Add(function (player, msg) {
     if (msg.type == 'timeOut') {
-      App.sayToAll(`아아... ${player.name}님이 세상을 구원하지 못했습니다...!`, 0xff0000);
+      App.sayToAll(`아아... ${player.name}님이 한스를 찾지 못했습니다...!`, 0xff0000);
     }
   });
 };
