@@ -8,7 +8,6 @@
 		}
 
 		#dialog {
-			height: 85%;
 			padding: 5px;
 
 			background-color: rgb(255, 255, 255);
@@ -18,12 +17,15 @@
 		}
 
 		.dialogWrapper {
-			height: 100%;
 			padding: 20px;
 
 			border: solid 3px dimgray;
 			border-radius: 10px;
 			background-color: white;
+		}
+
+		.noOption {
+			margin-top: 30%;
 		}
 
 		header {
@@ -140,10 +142,6 @@
 		});
 
 		const init = (data) => {
-			if (Number(data.type) == 2) {
-
-			}
-
 			condition = data.condition;
 			dialogFlow = NPC_DIALOG_FLOW[data.id];
 			selectedOptionNo = -1;
@@ -152,14 +150,19 @@
 		}
 
 		const setOptions = (flowNo) => {
-			if (dialogFlow[flowNo].condition && !condition.includes(dialogFlow[flowNo].condition)) return;
+			if (dialogFlow[flowNo].condition && !condition.includes(dialogFlow[flowNo].condition)) {
+				if(!document.getElementById('dialog').classList.includes('noOption'))
+					document.getElementById('dialog').classList.add('noOption');
+				return;
+			}
 
+			document.getElementById('dialog').classList.remove('noOption');
 			document.getElementById("optionBox").innerHTML = `
 				<div id="optionGuide">>></div>
 				<div id="options"></div>`;
 			document.getElementById("buttonBox").innerHTML = `
 				<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>`;
-			
+
 			let Options = document.getElementById("options");
 			Options.innerHTML = '';
 
@@ -293,7 +296,7 @@
 				{
 					name: NPC_NAME[1],
 					text: '오~ 잘 만났다! 저번에 제주도 여행 다녀오셨죠?! 저 이번에 제주도 내려가는데 맛집 좀 추천해주세요~!',
-					options: [{ number: 0, text: '제주시 동쪽에 동복 해녀촌이라고 있는데, 가셔서 회국수랑 성게국수 드셔보세요!', link: -1 }]
+					options: [{ number: 0, text: '동복 해녀촌에서 회국수, 성게국수 드셔보세요!', link: -1 }]
 				},
 			],
 			2: [ // 라이너
@@ -323,9 +326,30 @@
 			8: [ // 한지
 				{
 					name: NPC_NAME[8],
-					text: '이거 비밀번호 아직도 예전 그대로네...! 바뀐지가 언젠데!',
+					text: '안녕하세요~ 뭐 필요하신 거라도...? 🙂',
 					options: [
-						{ number: 0, text: '그럼 비밀번호는 예전 팀 이름이겠네요', link: -1 },
+						{ number: 0, text: '아, 아뇨~ 그냥 기분이 좋아 보이셔서 😊', link: 1 },
+						{
+							number: 1,
+							condition: 'clean',
+							text: '== 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 팀장) ==',
+							conditionText: '혹시 MI팀 보관함 비밀번호를 아실까요?',
+							link: 2
+						},
+					]
+				},
+				{
+					name: NPC_NAME[8],
+					text: '아~ 다음주에 프로젝트 철수하고 리프레시 휴가 가거든요!!',
+					options: [
+						{ number: 0, text: '와~~ 너무 부러워요~~ 🤩', link: -1 },
+					]
+				},
+				{
+					name: NPC_NAME[8],
+					text: '아~ 이거 비밀번호가 예전 팀 이름 그대로에요... 바뀐지가 언젠데! 😅',
+					options: [
+						{ number: 0, text: '아, 넵 감사합니다!', link: -1 },
 					]
 				}],
 			9: [{ name: NPC_NAME[9], text: '아니, 이거 하루가 멀다하고 기획이 바뀌냐...?' }],
@@ -425,7 +449,7 @@
 					name: NPC_NAME[22],
 					text: '여기 엘리베이터 내부에 폭포수가 쏟아지고 있어요.. 조심하세요!',
 					options: [
-						{ number: 0, text: '엘리베이터에 무슨 폭포수...???', link: -1},
+						{ number: 0, text: '엘리베이터에 무슨 폭포수...???', link: -1 },
 					],
 				},
 			],
@@ -530,17 +554,18 @@
 					name: NPC_NAME[33],
 					text: '그건 아닌데... 같이 투입되신 분들이 다 중간에 그만두셨어요...',
 					options: [
-						{ 
-							number: 0, 
-							condition: '',
-							text: '무슨 이유라도 있나요...?',
+						{
+							number: 0,
+							condition: 'help',
+							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 화물) -',
+							conditionText: '무슨 이유라도 있나요...?',
 							link: 2
 						},
-						{ 
-							number: 1, 
-							text: '무슨 이유라도 있나요...?',
+						{
+							number: 1,
+							text: '아... 어떤 프로젝트길래... 다들 힘드셨나보다',
 							link: -1
-						}						
+						}
 					],
 				},
 			],
