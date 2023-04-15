@@ -114,7 +114,6 @@ const handleDialogMessage = (player, msg) => {
   } else if (msg.type == 'saveHansNote') {
     player.tag.noteStatus = msg.noteStatus;
   } else if (msg.type == 'nextDialog') {
-    log(`type : ${msg.dialogType}, link : ${msg.link}`);
     player.tag.widgetDialog.destroy();
     player.tag.widgetDialog = null;
     openDialog(player, { type: msg.dialogType, id: msg.link });
