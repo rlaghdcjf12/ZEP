@@ -171,7 +171,7 @@
 
 		const init = (data) => {
 			condition = data.condition;
-			inputInfo = INPUT_FLOW[data.dialogId];
+			inputInfo = INPUT_FLOW[data.id];
 			if (condition.includes(inputInfo.condition) && inputInfo.nextDialogLink) {
 				inputInfo = INPUT_FLOW[inputInfo.nextDialogLink];
 			}
@@ -229,7 +229,7 @@
 				answer: 'build',
 				answerText: 'SE 보관함을 열었다.',
 				wrongText: '비밀번호가 틀린 것 같다.',
-				condition: 'openSE',
+				condition: 'openSE', //addCondition 대상
 				nextDialogType: 2,
 				nextDialogLink: 1,
 			},
@@ -244,6 +244,16 @@
 				answerChkListNo: 5,
 				condition: 'hansNote',
 			},
+			{
+				type: 'text',
+				name: '마이크로서비스개발팀 보관함',
+				questionText: '비밀번호를 입력하세요. (한글 9글자)',
+				answer: '모던애플리케이션팀',
+				answerText: '마이크로서비스개발팀 보관함을 열었다.',
+				wrongText: '뭐지? 왜 틀리지?',
+				nextDialogType: 3,
+				nextDialogLink: 1,
+			},			
 		]
 	</script>
 </body>
