@@ -1,3 +1,7 @@
+/* TODO: 버그 리스트
+  1. 한스노트 확인하지 않아도 애니 대화 옵션 가능하다. -> 불가능하도록 수정할 것. (listNo 연결해서)
+*/
+
 let players = [];
 
 App.onInit.Add(function () {
@@ -10,6 +14,7 @@ App.onJoinPlayer.Add(function (player) {
     sturn: false,
     sTime: 2,
     condition: [conditionTag[0]],
+    listNo: 0,
     noteStatus: {
       flowNo: 0,
       finishPage: -1,
@@ -51,11 +56,11 @@ App.addOnLocationTouched('waterFall', function (player) {
 });
 App.addOnLocationTouched('toilet', function (player) {
   handleObjectScenario(player, { type: 1, id: 40 });
-  openDialog(player, { type: 1, id: 40 });
+  if (!checkCondition(player, conditionTag[98])) openDialog(player, { type: 1, id: 40 });
 });
 App.addOnLocationTouched('coin', function (player) {
   handleObjectScenario(player, { type: 1, id: 42 });
-  openDialog(player, { type: 1, id: 42 });
+  if (!checkCondition(player, conditionTag[99])) openDialog(player, { type: 1, id: 42 });
 });
 // App.addOnLocationTouched('finish', function (player) {
 //   if (!checkCondition(player, conditionTag[100])) {
@@ -82,9 +87,12 @@ const handleObjectScenario = (player, { type, id }) => {
       // 문동은 미션 전개
       // 이후 미션 진행 추가할 때는 앞순서로 넣어야겠지?
       if (checkCondition(player, conditionTag[7])) return { type: 1, id: 44 }; // 미션2 - 개수 파악 완료 시: 이후 전개
-      else if (checkCondition(player, conditionTag[6])) return { type: 2, id: 43 }; // 미션2 진행 시: 모니터 개수 입력창
+      else if (checkCondition(player, conditionTag[6])) return { type: 2, id: 3 }; // 미션2 진행 시: 모니터 개수 입력창
       else if (checkCondition(player, conditionTag[5])) return { type: 1, id: 43 }; // 미션1 완료 시: 미션2 진행
-    } else if (id == 40 && !checkCondition(player, conditionTag[2])) addCondition(player, conditionTag[2]);
+    } else if (id == 35 && !checkCondition(player, conditionTag[2])) {
+      openToast(player, MEMO_NO_TOILET);
+      return { type: -1, id: -1 };
+    } else if (id == 40 && !checkCondition(player, conditionTag[98])) addCondition(player, conditionTag[98]);
     else if (id == 42 && !checkCondition(player, conditionTag[99])) addCondition(player, conditionTag[99]);
   }
   // 2. input
@@ -101,21 +109,20 @@ const handleDialogMessage = (player, msg) => {
   } else if (msg.type == 'speedUp') {
     !player.tag.isSpeedUp ? speedUp(player) : openToast(player, TEXT_AGAIN_COFFEE, 2);
   } else if (msg.type == 'setCheckList') {
-    setCheckList(player, msg.listNo);
-    if (msg.listNo == 8) {
-      openToast(player, '한스의 노트를 다시 확인해보자.', 2);
-      setCheckList(player, 9);
-      addCondition(player, conditionTag[5]);
-      player.tag.condition.noteStatus = {
-        flowNo: 1,
+    if ([6, 7, 8].includes(player.tag.listNo)) {
+      openToast(player, '한스의 노트를 다시 확인해보자.');
+      addCondition(player, 5);
+      player.tag.noteStatus = {
+        flowNo: 1, // 미션1 클리어: 0 -> 1
         finishPage: -1,
         isSetChkList: false,
       };
     }
+    setCheckList(player, msg.listNo);
   } else if (msg.type == 'openToast') {
     openToast(player, msg.toast, 2);
   } else if (msg.type == 'addCondition') {
-    addCondition(player, conditionTag[msg.condition]);
+    addCondition(player, msg.condition);
   } else if (msg.type == 'openHansNote') {
     openNoteButton(player);
   } else if (msg.type == 'saveHansNote') {
@@ -127,14 +134,14 @@ const handleDialogMessage = (player, msg) => {
   }
 };
 
-const checkCondition = (player, tag) => {
-  return player.tag.condition.includes(tag);
+const checkCondition = (player, condition) => {
+  return player.tag.condition.includes(condition);
 };
 
-const addCondition = (player, tag) => {
-  log(`addCondition tag : ${tag} (isNumber? : ${!isNaN(tag)})`);
-  if (isNaN(tag)) player.tag.condition.push(tag);
-  else player.tag.condition.push(conditionTag[tag]);
+const addCondition = (player, condition) => {
+  log(`addCondition condition + ${condition} (isNumber? : ${!isNaN(condition)})`);
+  if (isNaN(condition)) player.tag.condition.push(condition);
+  else player.tag.condition.push(conditionTag[condition]);
 };
 
 // TODO: 추후 지울 것
@@ -213,6 +220,8 @@ const openSetNameDialog = (player) => {
 
 const openDialog = (player, { type, id }) => {
   log(`openDialog - type: ${type}, id: ${id}`);
+  if (type == -1) return;
+
   if (player.tag.widgetDialog == null) {
     player.tag.widgetDialogType = dialogType[type];
     player.tag.widgetDialog = player.showWidgetResponsive(
@@ -294,15 +303,17 @@ const dialogSize = {
 const conditionTag = {
   0: 'noName',
   1: 'help',
-  2: 'toilet',
+  2: 'hansCard',
   3: 'openSE',
   4: 'hansNote',
   5: 'complete1',
   6: 'startMission2',
   7: 'monitor',
+  98: 'toilet',
   99: 'coin',
   100: 'finish',
 };
 
 const TEXT_SPEED_UP_COFFEE = '커피를 마셨더니 몸이 가벼워진 것 같다.';
 const TEXT_AGAIN_COFFEE = '일단 받고 보자..';
+const MEMO_NO_TOILET = '아무리 그래도 프라이버시는 지켜주자.';

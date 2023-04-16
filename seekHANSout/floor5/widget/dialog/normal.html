@@ -225,7 +225,7 @@
 				window.parent.postMessage({ type: "setCheckList", listNo: selectedCheckListNo }, "*");
 				handleCloseButton();
 			} else if (selectedLink == -4) {
-				window.parent.postMessage({ type: "addCondition", addCondition: selectedConditionNo }, "*");
+				window.parent.postMessage({ type: "addCondition", condition: selectedConditionNo }, "*");
 				handleCloseButton();
 			} else {
 				document.getElementById("name").innerText = dialogFlow[selectedLink].name;
@@ -513,27 +513,7 @@
 				{
 					name: NPC_NAME[26],
 					text: '동은씨가 몇 개월 째 이 골방에 틀어박혀 혼자 프로젝트를 하는 걸 보니 너무 안쓰러워요...',
-					options: [
-						{
-							number: 1,
-							condition: 'complete1',
-							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 화물) -',
-							conditionText: '프로젝트 혼자 투입되셨나봐요?',
-							link: 2
-						},
-					],
-				},
-				{
-					name: NPC_NAME[26],
-					text: '그건 아닌데... 어쩌다보니 같이 투입되신 분들이 다 중간에...',
-					options: [
-						{
-							number: 1,
-							text: '아... 쉽지 않네요...',
-							link: -1
-						}
-					],
-				},
+				}
 			],
 			27: [ // 문동은
 				{
@@ -723,6 +703,22 @@
 					options: [
 						{ number: 0, text: '알겠어!', link: -4, conditionNo: 6 },
 						{ number: 1, text: '나도 바빠!', link: -1 }
+					],
+				}
+			],
+			44: [
+				{
+					name: NPC_NAME[27],
+					text: '오~ 너무 고마워!! ☺️ 근데, 무슨 일로 여기까지 온거야?',
+					options: [
+						{ number: 0, text: '혼자 일하는데, 무슨 일이 있었나 해서!', link: 1 },
+					],
+				},
+				{
+					name: NPC_NAME[27],
+					text: '// todo',
+					options: [
+						{ number: 0, text: '// todo', link: 1 },
 					],
 				}
 			]

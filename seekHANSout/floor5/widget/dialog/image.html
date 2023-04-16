@@ -82,7 +82,7 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			let condition, imageList, nextButtonText, imgNo, isLast, chkListNo;
+			let condition, imageList, nextButtonText, imgNo, isLast, chkListNo, conditionNo;
 
 			window.addEventListener("message", (e) => {
 				condition =  e.data.condition;
@@ -90,6 +90,7 @@
 				nextButtonText = IMAGE_FLOW[e.data.id].nextButtonText ? IMAGE_FLOW[e.data.id].nextButtonText : '다음';
 				imgNo = 0;
 				chkListNo = IMAGE_FLOW[e.data.id].chkListNo ? IMAGE_FLOW[e.data.id].chkListNo : -1;
+				conditionNo = IMAGE_FLOW[e.data.id].conditionNo ? IMAGE_FLOW[e.data.id].conditionNo : -1;
 
 				setImage(imgNo);
 
@@ -123,6 +124,7 @@
 			const handleCloseButton = () => {
 				if (isLast && chkListNo != -1) {
 					window.parent.postMessage({type: "setCheckList", listNo: chkListNo}, "*");
+					window.parent.postMessage({type: "addCondition", condition: conditionNo}, "*");
 				}
 				window.parent.postMessage({type: "closeDialog"}, "*");
 			}
@@ -130,6 +132,7 @@
 			const IMAGE_FLOW = {
 				0: {	
 					chkListNo: 3,
+					conditionNo: 2,
 					nextButtonText: '뒤집기',
 					imageList: [
 						"https://github.com/rlaghdcjf12/ZEP/blob/main/seekHANSout/floor5/assets/hansCardOnToilet.jpg?raw=true",
