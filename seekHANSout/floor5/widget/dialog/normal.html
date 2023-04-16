@@ -4,7 +4,7 @@
 	<style type="text/css">
 		.container {
 			background-color: rgba(255, 255, 255, 0);
-			font-size: 14px;
+			font-size: min(14px, 3vmin);
 		}
 
 		#dialog {
@@ -81,7 +81,7 @@
 			background-color: #f3f2ff;
 
 			line-height: 32px;
-			font-size: min(14px, 3vmax);
+			font-size: min(14px, 3vmin);
 			color: black;
 			text-align: center;
 			overflow: hidden;
@@ -128,7 +128,7 @@
 	</div>
 	<script type="text/javascript">
 		let condition, dialogFlow;
-		let selectedOptionNo, selectedLink, selectedCheckListNo;
+		let selectedOptionNo, selectedLink, selectedCheckListNo, selectedConditionNo;
 
 		window.addEventListener("message", (e) => {
 			init(e.data);
@@ -147,6 +147,7 @@
 			selectedOptionNo = -1;
 			selectedLink = -11;
 			selectedCheckListNo = -1;
+			selectedConditionNo = -1;
 		}
 
 		const setOptions = (flowNo) => {
@@ -168,6 +169,7 @@
 
 			dialogFlow[flowNo].options.forEach(oi => {
 				const listNo = oi.link == -3 ? oi.listNo : -1;
+				const conditionNo = oi.link == -4 ? oi.conditionNo : -1;
 
 				if (oi.condition) {
 					if (condition.includes(oi.condition)) {
@@ -175,7 +177,7 @@
 								<button 
 									id="option${oi.number}"
 									class="option" 
-									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo}, ${conditionNo})"
 								>
 									${oi.conditionText}
 								</button>`;
@@ -188,7 +190,7 @@
 							<button
 								id="option${oi.number}"
 								class="option"
-								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo})"
+								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo}, ${conditionNo})"
 							>
 								${oi.text}
 							</button>`;
@@ -200,7 +202,7 @@
 			window.parent.postMessage({ type: "closeDialog" }, "*");
 		}
 
-		const handleSelectOption = (optNo, link, listNo = -1) => {
+		const handleSelectOption = (optNo, link, listNo = -1, conditionNo = -1) => {
 			if (selectedOptionNo != -1) {
 				document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
 			}
@@ -208,6 +210,7 @@
 			selectedOptionNo = optNo;
 			selectedLink = link;
 			selectedCheckListNo = listNo;
+			selectedConditionNo = conditionNo;
 			document.getElementById(`option${optNo}`).classList.add("selected");
 			document.getElementById("button").classList.remove("disable");
 		}
@@ -220,6 +223,9 @@
 				handleCloseButton();
 			} else if (selectedLink == -3) {
 				window.parent.postMessage({ type: "setCheckList", listNo: selectedCheckListNo }, "*");
+				handleCloseButton();
+			} else if (selectedLink == -4) {
+				window.parent.postMessage({ type: "addCondition", addCondition: selectedConditionNo }, "*");
 				handleCloseButton();
 			} else {
 				document.getElementById("name").innerText = dialogFlow[selectedLink].name;
@@ -263,16 +269,16 @@
 			21: 'MS 서민영',
 			22: '환경미화 여사님',
 			// 23
-			// 24
+			24: 'AG 피크',
 			25: '치프',
-			26: 'AG 피크',
+			26: 'MI 김경란',
 			27: 'MI 문동은',
 			28: 'AG 박연진',
 			29: 'MD 전재준',
 			30: 'MI 최혜정',
 			31: 'CD 이사라',
 			32: 'CD 손명오',
-			33: 'MI 김경란',
+			// 33
 			34: 'MD 히스토리아',
 			35: '메모',
 			// 36
@@ -444,7 +450,7 @@
 					options: ['아.. 아니.. 들어가려는 건 아니에요..!'],
 				},
 			],
-			22: [
+			22: [ // 환경미화 여사님
 				{
 					name: NPC_NAME[22],
 					text: '여기 엘리베이터 내부에 폭포수가 쏟아지고 있어요.. 조심하세요!',
@@ -453,7 +459,13 @@
 					],
 				},
 			],
-			25: [
+			24: [ // 피크
+				{
+					name: NPC_NAME[24],
+					text: '치프님한테 볼 일 있으세요?',
+				},
+			],
+			25: [ // 치프
 				{
 					name: NPC_NAME[25],
 					text: '오~ 한스, 여긴 무슨 일이야',
@@ -497,18 +509,37 @@
 					options: [{ text: '감사합니다!', link: -1 }],
 				},
 			],
-			26: [
+			26: [ // 김경란
 				{
 					name: NPC_NAME[26],
-					text: '치프님한테 볼 일 있으세요?',
+					text: '동은씨가 몇 개월 째 이 골방에 틀어박혀 혼자 프로젝트를 하는 걸 보니 너무 안쓰러워요...',
+					options: [
+						{
+							number: 1,
+							condition: 'complete1',
+							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 화물) -',
+							conditionText: '프로젝트 혼자 투입되셨나봐요?',
+							link: 2
+						},
+					],
+				},
+				{
+					name: NPC_NAME[26],
+					text: '그건 아닌데... 어쩌다보니 같이 투입되신 분들이 다 중간에...',
+					options: [
+						{
+							number: 1,
+							text: '아... 쉽지 않네요...',
+							link: -1
+						}
+					],
 				},
 			],
 			27: [ // 문동은
 				{
 					name: NPC_NAME[27],
-					text: '오늘도 야근이네. 니 덕분이야 연진아. 이런 순간이 놀랍지도 않은거.',
-					options: ['난 연진이가 아닌데... (눈에 초점이 없어보인다. 피하자.)'],
-				},
+					text: '오늘도 혼자 야근이네. 니 덕분이야 연진아. 이런 순간이 놀랍지도 않은거.',
+				}
 			],
 			28: [
 				{
@@ -542,33 +573,6 @@
 					text: "'memento mori' 너의 죽음을 기억하라. 오늘인 것 같다. 아오~!",
 				},
 			],
-			33: [
-				{
-					name: NPC_NAME[33],
-					text: '동은씨가 몇 개월 째 이 골방에 틀어박혀 혼자 프로젝트를 하는 걸 보니 너무 안쓰러워요...',
-					options: [
-						{ number: 0, text: '프로젝트 혼자 투입되셨나봐요?', link: 1 }
-					],
-				},
-				{
-					name: NPC_NAME[33],
-					text: '그건 아닌데... 같이 투입되신 분들이 다 중간에 그만두셨어요...',
-					options: [
-						{
-							number: 0,
-							condition: 'help',
-							text: '- 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 화물) -',
-							conditionText: '무슨 이유라도 있나요...?',
-							link: 2
-						},
-						{
-							number: 1,
-							text: '아... 어떤 프로젝트길래... 다들 힘드셨나보다',
-							link: -1
-						}
-					],
-				},
-			],
 			34: [
 				{
 					name: NPC_NAME[34],
@@ -593,7 +597,7 @@
 			35: [ // 메모
 				{
 					name: NPC_NAME[35],
-					text: '\'혹시 제가 아무리 찾아도 안 보인다면, SE 보관함 속 [한스노트]를 찾아주세요...\' 라고 적혀있다. 비밀번호는 build 입니다!',
+					text: '\'혹시 제가 아무리 찾아도 안 보인다면, SE 보관함 속 [한스노트]를 찾아주세요... 비밀번호는 build 입니다!\' 라고 적혀있다.',
 					options: [{ number: 0, text: 'SE 보관함을 확인해보자.', link: -3, listNo: 4 }],
 				},
 			],
@@ -712,6 +716,16 @@
 					options: [{ text: '(어떻게 할까...?!)', link: -1 }],
 				},
 			],
+			43: [
+				{
+					name: NPC_NAME[27],
+					text: '오~ 잘왔어! 너무 바빠서 그러는데, 밖에 업무 공간에 모니터 없는 자리가 몇 자리인지 확인좀 해줄래?',
+					options: [
+						{ number: 0, text: '알겠어!', link: -4, conditionNo: 6 },
+						{ number: 1, text: '나도 바빠!', link: -1 }
+					],
+				}
+			]
 		};
 	</script>
 </body>

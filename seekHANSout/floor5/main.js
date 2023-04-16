@@ -78,7 +78,13 @@ const handleObjectScenario = (player, { type, id }) => {
     if (id == 10 && !checkCondition(player, conditionTag[1]))
       addCondition(player, conditionTag[1]); // 가비 화물 도움 태그
     else if (id == 22 && player.tag.listNo == 6) setCheckList(player, 7); // 여사님 대화: 체크리스트 6->7
-    else if (id == 40 && !checkCondition(player, conditionTag[2])) addCondition(player, conditionTag[2]);
+    else if (id == 27 && player.tag.listNo >= 10) {
+      // 문동은 미션 전개
+      // 이후 미션 진행 추가할 때는 앞순서로 넣어야겠지?
+      if (checkCondition(player, conditionTag[7])) return { type: 1, id: 44 }; // 미션2 - 개수 파악 완료 시: 이후 전개
+      else if (checkCondition(player, conditionTag[6])) return { type: 2, id: 43 }; // 미션2 진행 시: 모니터 개수 입력창
+      else if (checkCondition(player, conditionTag[5])) return { type: 1, id: 43 }; // 미션1 완료 시: 미션2 진행
+    } else if (id == 40 && !checkCondition(player, conditionTag[2])) addCondition(player, conditionTag[2]);
     else if (id == 42 && !checkCondition(player, conditionTag[99])) addCondition(player, conditionTag[99]);
   }
   // 2. input
@@ -126,8 +132,9 @@ const checkCondition = (player, tag) => {
 };
 
 const addCondition = (player, tag) => {
-  log(`addCondition tag : ${tag}`);
-  player.tag.condition.push(tag);
+  log(`addCondition tag : ${tag} (isNumber? : ${!isNaN(tag)})`);
+  if (isNaN(tag)) player.tag.condition.push(tag);
+  else player.tag.condition.push(conditionTag[tag]);
 };
 
 // TODO: 추후 지울 것
@@ -290,7 +297,9 @@ const conditionTag = {
   2: 'toilet',
   3: 'openSE',
   4: 'hansNote',
-  5: 'Complete1',
+  5: 'complete1',
+  6: 'startMission2',
+  7: 'monitor',
   99: 'coin',
   100: 'finish',
 };

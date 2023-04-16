@@ -229,9 +229,9 @@
 				answer: 'build',
 				answerText: 'SE 보관함을 열었다.',
 				wrongText: '비밀번호가 틀린 것 같다.',
-				condition: 'openSE', //addCondition 대상
 				nextDialogType: 2,
 				nextDialogLink: 1,
+				condition: 'openSE', //addCondition 대상
 			},
 			{
 				type: 'image',
@@ -253,6 +253,17 @@
 				wrongText: '뭐지? 왜 틀리지?',
 				nextDialogType: 3,
 				nextDialogLink: 1,
+			},
+			{
+				type: 'text',
+				name: 'MI 문동은',
+				questionText: '오~ 알아왔어? 몇 개야? (숫자)',
+				answer: '8',
+				answerText: '맞게 파악한 것 같다.',
+				wrongText: '다시 알아보자...',
+				nextDialogType: 1,
+				nextDialogLink: 27,
+				condition: 'monitor',
 			},			
 		]
 	</script>
