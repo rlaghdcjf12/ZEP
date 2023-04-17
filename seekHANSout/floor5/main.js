@@ -81,7 +81,9 @@ const handleObjectScenario = (player, { type, id }) => {
   // 1. normal
   else if (type == 1) {
     if (id == 10 && !checkCondition(player, conditionTag[1]))
-      addCondition(player, conditionTag[1]); // 가비 화물 도움 태그
+      addCondition(player, checkCondition(player, conditionTag[1])); // 가비 화물 도움 태그
+    else if (id == 15 && checkCondition(player, conditionTag[5]))
+      return { type: 1, id: 16 }; // 폭포수 미션 끝나고 애니 대화
     else if (id == 22 && player.tag.listNo == 6) setCheckList(player, 7); // 여사님 대화: 체크리스트 6->7
     else if (id == 27 && player.tag.listNo >= 10) {
       // 문동은 미션 전개
@@ -131,6 +133,8 @@ const handleDialogMessage = (player, msg) => {
     player.tag.widgetDialog.destroy();
     player.tag.widgetDialog = null;
     openDialog(player, { type: msg.dialogType, id: msg.link });
+  } else if (msg.type == 'downTimer') {
+    player.
   }
 };
 

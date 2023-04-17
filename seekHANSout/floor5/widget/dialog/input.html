@@ -214,6 +214,7 @@
 			}
 			else {
 				document.getElementById('wrongText').innerText = inputInfo.wrongText;
+				window.parent.postMessage({ type: "downTimer" }, "*");
 			}
 		}
 
@@ -257,7 +258,7 @@
 			{
 				type: 'text',
 				name: 'MI 문동은',
-				questionText: '오~ 알아왔어? 몇 개야? (숫자)',
+				questionText: '오~ 알아왔어? 몇 개야? (숫자, 틀릴 때마다 남은시간이 감소합니다.)',
 				answer: '8',
 				answerText: '맞게 파악한 것 같다.',
 				wrongText: '다시 알아보자...',
