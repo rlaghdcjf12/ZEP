@@ -134,7 +134,7 @@ const handleDialogMessage = (player, msg) => {
     player.tag.widgetDialog = null;
     openDialog(player, { type: msg.dialogType, id: msg.link });
   } else if (msg.type == 'downTimer') {
-    player.
+    // player.
   }
 };
 
