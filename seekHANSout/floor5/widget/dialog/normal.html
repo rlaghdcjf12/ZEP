@@ -128,7 +128,7 @@
 	</div>
 	<script type="text/javascript">
 		let condition, dialogFlow;
-		let selectedOptionNo, selectedLink, selectedCheckListNo, selectedConditionNo;
+		let selectedOptionNo, selectedLink, selectedCheckListNo, selectedConditionNo, selectedMissionNo;
 
 		window.addEventListener("message", (e) => {
 			init(e.data);
@@ -148,6 +148,7 @@
 			selectedLink = -11;
 			selectedCheckListNo = -1;
 			selectedConditionNo = -1;
+			selectedMissionNo = -1;
 		}
 
 		const setOptions = (flowNo) => {
@@ -168,8 +169,17 @@
 			Options.innerHTML = '';
 
 			dialogFlow[flowNo].options.forEach(oi => {
-				const listNo = oi.link == -3 ? oi.listNo : -1;
-				const conditionNo = oi.link == -4 ? oi.conditionNo : -1;
+				let listNo, conditionNo, missionNo;
+				if (oi.link == -3) {
+					if (oi.listNo) listNo = oi.listNo;
+					else listNo = -1;
+
+					if (oi.conditionNo) conditionNo = oi.conditionNo;
+					else conditionNo = -1;
+
+					if (oi.missionNo) missionNo = oi.missionNo;
+					else missionNo = -1;
+				}
 
 				if (oi.condition) {
 					if (condition.includes(oi.condition)) {
@@ -177,7 +187,7 @@
 								<button 
 									id="option${oi.number}"
 									class="option" 
-									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo}, ${conditionNo})"
+									onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo}, ${conditionNo}, ${missionNo})"
 								>
 									${oi.conditionText}
 								</button>`;
@@ -190,7 +200,7 @@
 							<button
 								id="option${oi.number}"
 								class="option"
-								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo}, ${conditionNo})"
+								onclick="javascript:handleSelectOption(${oi.number}, ${oi.link}, ${listNo}, ${conditionNo}, ${missionNo})"
 							>
 								${oi.text}
 							</button>`;
@@ -202,7 +212,7 @@
 			window.parent.postMessage({ type: "closeDialog" }, "*");
 		}
 
-		const handleSelectOption = (optNo, link, listNo = -1, conditionNo = -1) => {
+		const handleSelectOption = (optNo, link, listNo = -1, conditionNo = -1, missionNo = -1) => {
 			if (selectedOptionNo != -1) {
 				document.getElementById(`option${selectedOptionNo}`).classList.remove("selected");
 			}
@@ -211,6 +221,7 @@
 			selectedLink = link;
 			selectedCheckListNo = listNo;
 			selectedConditionNo = conditionNo;
+			selectedMissionNo = missionNo;
 			document.getElementById(`option${optNo}`).classList.add("selected");
 			document.getElementById("button").classList.remove("disable");
 		}
@@ -222,10 +233,12 @@
 				window.parent.postMessage({ type: "speedUp" }, "*");
 				handleCloseButton();
 			} else if (selectedLink == -3) {
-				window.parent.postMessage({ type: "setCheckList", listNo: selectedCheckListNo }, "*");
-				handleCloseButton();
-			} else if (selectedLink == -4) {
-				window.parent.postMessage({ type: "addCondition", condition: selectedConditionNo }, "*");
+				if (selectedCheckListNo != -1)
+					window.parent.postMessage({ type: "setCheckList", listNo: selectedCheckListNo }, "*");
+				if (selectedConditionNo != -1)
+					window.parent.postMessage({ type: "addCondition", condition: selectedConditionNo }, "*");
+				if (selectedMissionNo != -1)
+					window.parent.postMessage({ type: "missionComplete", missionNo: selectedMissionNo }, "*");
 				handleCloseButton();
 			} else {
 				document.getElementById("name").innerText = dialogFlow[selectedLink].name;
@@ -428,7 +441,7 @@
 					name: NPC_NAME[15],
 					text: '그렇네. 나도 내가 너무 작은 부분만 봤던 게 아닌 지 생각이 드네. 이렇게 나하고 대화 해줘서 고마워. 덕분에 마음이 편안해졌어.',
 					options: [
-						{ number: 0, text: '편안해졌다니 다행이야', link: -3, listNo: 9 },
+						{ number: 0, text: '편안해졌다니 다행이야', link: -3, listNo: 9, missionNo: 1 },
 					],
 				},
 			],
@@ -706,7 +719,7 @@
 					name: NPC_NAME[27],
 					text: '오~ 잘왔어! 너무 바빠서 그러는데, 밖에 업무 공간에 모니터 없는 자리가 몇 자리인지 확인좀 해줄래?',
 					options: [
-						{ number: 0, text: '알겠어!', link: -4, conditionNo: 6 },
+						{ number: 0, text: '알겠어!', link: -3, listNo: 11, conditionNo: 6 },
 						{ number: 1, text: '나도 바빠!', link: -1 }
 					],
 				}
@@ -719,72 +732,83 @@
 						{ number: 0, text: '매일 혼자 일하는데, 무슨 일이 있었나 해서!', link: 1 },
 					],
 				},
-				{
+				{ // 1
 					name: NPC_NAME[27],
-					text: '뭐... 간단하게 말하자면, \'우리\'는 없고 \'나\'만 있었던 거지'
+					text: '뭐... 간단하게 말하자면, \'우리\'는 없고 \'나\'만 있었던 거지\n'
 						+ '얘기가 긴데... 궁금해?',
 					options: [
 						{ number: 0, text: '계속해봐!', link: 2 },
-						{ number: 1, text: '안들어도 뭔지 알 것 같아...', link: 2 },
+						{ number: 1, text: '안들어도 뭔지 알 것 같아...', link: -1 },
 					],
 				},
-				{
+				{ // 2
 					name: NPC_NAME[27],
-					text: '자, 봐봐. 성공적인 오픈이라는 목표를 향해 파트가 나뉘어서 업무가 분담이 되고\n'
-						+ '다같이 함께 힘을 합쳐 개발을 하면 좋겠지만... 본인이 개발한 부분을 수정해야한다면\n'
-						+ '어떨 것 같아?',
+					text: '자, 봐봐. [성공적인 오픈]이라는 목표를 향해 파트가 나뉘어서 업무가 분담이 되고\n'
+						+ '다같이 함께 힘을 합쳐 개발을 하면 좋겠지만...\n'
+						+ '다른 파트의 요구로, 본인이 개발한 부분을 수정해야한다면 어떨 것 같아?',
 					options: [
-						{ number: 0, text: '일단 스트레스부터 받을 것 같아...', link: 3 },
+						{ number: 0, text: '어쩔 수 없지 뭐... 바꿔야지', link: 3 },
+						{ number: 1, text: '일단 스트레스부터 받을 것 같아...', link: 4 },
 					],
 				},
-				{
+				{ // 3
 					name: NPC_NAME[27],
-					text: '그치 뭐... 누가 번복, 추가적인 업무를 좋아하겠어.\n'
+					text: '어휴... 아니야! 바꾸란다고 다 바꾸면 안돼!\n'
+						+ '나처럼 된다구...\n'
+						+ '근데 다 우리 같지는 않더라. 간단한 요구사항에도 너무 방어적인 파트가 많아...\n'
+						+ '박연진 파트가 특히 그래.',
+					options: [
+						{ number: 0, text: '박연진?', link: 5 },
+						{ number: 1, text: '이름만 들어도 벌써 소름이 돋아!', link: 5 },
+					],
+				},
+				{ // 4
+					name: NPC_NAME[27],
+					text: '그치 뭐... 근데 누가 번복, 추가적인 업무를 좋아하겠어.\n'
 						+ '그래서 개발 전 협의가 중요하지만, 협의되지 않은 사항들을 개발하는 경우가 허다하잖아.\n'
 						+ '근데 참... 그런 부분들이나 간단한 요구사항에도 너무 방어적인 파트가 많더라...\n'
-						+ '연진이 파트가 특히 그래.',
+						+ '박연진 파트가 특히 그래.',
 					options: [
-						{ number: 0, text: '연진이?', link: 4 },
+						{ number: 0, text: '박연진?', link: 5 },
+						{ number: 1, text: '이름만 들어도 벌써 소름이 돋아!', link: 5 },
 					],
 				},
-				{
+				{ // 5
 					name: NPC_NAME[27],
 					text: '본인들 요구사항은 위에서 찍어누르기로 강행하고, 우리들 요구사항은 안 들어주네?\n'
 						+ '일이 진행이 안되고 쌓이기 시작하니 악순환이 시작됬지.\n'
 						+ '그렇게 하나 둘씩 나가더라고.\n'
 						+ '지금 밖을 봐. 본인들은 끝났으니 놀러 가고 있잖아.',
 					options: [
-						{ number: 0, text: '복수할 수 있는 방법이 없을까?!', link: 5 },
+						{ number: 0, text: '복수할 수 있는 방법이 없을까?!', link: 6 },
 					],
 				},
-				{
+				{ // 6
 					name: NPC_NAME[27],
-					text: '구체적으로 생각은 안 해봤는데... 저쪽 파트로 피해를 주는 방법?!\n'
-						+ '나의 간단한 고의적 실수로 저쪽 파트로 이상한 데이터를 쭉 밀어넣어버릴까...?\n'
-						+ '오... 생각을 해봐야겠는데?! 뭔가 갑자기 심장이 뛰는 것 같아!',
+					text: '구체적으로 생각은 안 해봤는데... 음~ 저쪽 파트로 피해를 주는 방법?!\n'
+						+ '나의 간단한 고의적 실수로 저쪽 파트로 이상한 데이터를 확 밀어넣어버릴까...?\n'
+						+ '호오~ 생각을 해봐야겠는데?! 뭔가 갑자기 심장이 뛰는 것 같아!',
 					options: [
-						{ number: 0, text: '어차피 너는 잃을 게 없잖아!', link: 6 },
+						{ number: 0, text: '어차피 우린 잃을 게 없잖아!', link: 7 },
 					],
 				},
-				{
+				{ // 7
 					name: NPC_NAME[27],
 					text: '그렇지! 어차피 맨날 야근하는데!\n'
-						+ '그렇게 나는 알면서도 모른척하면서... 저쪽에서 원인을 찾아내도록 하면...?\n'
-						+ '저쪽은 야근을 해서라도 원인을 찾아야겠지...?',
+						+ '그렇게 나는 알면서도 모른척 저쪽에서 원인을 찾아내도록 하면...?\n'
+						+ '저쪽은 야근을 해서라도 원인을 찾아야겠지...? 🤣',
 					options: [
-						{ number: 0, text: '그렇게 주도권을 너에게 가져오는 거지!', link: 5 },
+						{ number: 0, text: '그렇게 주도권을 가져오는 거지!', link: 8 },
 					],
 				},
-				{
+				{ // 8
 					name: NPC_NAME[27],
-					text: '복... 복수?\n'
+					text: '복수라... 왜 그 생각을 못해봤을까?\n'
 						+ '남의 고통에 앞장서던 그 발과 나란히 걸은 모든 발,\n'
-						+ '용서는 없어, 그래서 그 어떤 영광도 없겠지만.''애자일이었다면, 그렇게 생각할 수 있겠지만 애자일이 아닌 프로젝트도 많아.\n'
-						+ '하던 사람이 계속 하는 게 빨리 끝난다고, 나보고 개발 잘하니까 믿는단다...'
-						+ '결국 견디지 못하고 누군가 나가면 그 업무를 남은 사람이 해야하는데...\n'
-						+ '이렇게 악순환이 시작되지.',
+						+ '용서는 없어, 그래서 그 어떤 영광도 없겠지만.\n'
+						+ '좋아. 덕분에 간만에 피가 끓는다!!',
 					options: [
-						{ number: 0, text: '업무쏠림이 있었구나.', link: 6 },
+						{ number: 0, text: '좋아, 칼춤 출 사람 필요하면 말해!', link: -3, listNo: 13, missionNo: 2 },
 					],
 				}
 			]

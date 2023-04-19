@@ -111,15 +111,6 @@ const handleDialogMessage = (player, msg) => {
   } else if (msg.type == 'speedUp') {
     !player.tag.isSpeedUp ? speedUp(player) : openToast(player, TEXT_AGAIN_COFFEE, 2);
   } else if (msg.type == 'setCheckList') {
-    if ([6, 7, 8].includes(player.tag.listNo)) {
-      openToast(player, '한스의 노트를 다시 확인해보자.');
-      addCondition(player, 5);
-      player.tag.noteStatus = {
-        flowNo: 1, // 미션1 클리어: 0 -> 1
-        finishPage: -1,
-        isSetChkList: false,
-      };
-    }
     setCheckList(player, msg.listNo);
   } else if (msg.type == 'openToast') {
     openToast(player, msg.toast, 2);
@@ -135,6 +126,24 @@ const handleDialogMessage = (player, msg) => {
     openDialog(player, { type: msg.dialogType, id: msg.link });
   } else if (msg.type == 'downTimer') {
     // player.
+  } else if (msg.type == 'missionComplete') {
+    openToast(player, '한스의 노트를 다시 확인해보자.');
+    if(msg.missionNo == 1){
+      addCondition(player, 5);
+      player.tag.noteStatus = {
+        flowNo: 1, // 미션1 클리어: 0 -> 1
+        finishPage: -1,
+        isSetChkList: false,
+      };
+    }
+    else if(msg.missionNo == 2){
+      addCondition(player, 8);
+      player.tag.noteStatus = {
+        flowNo: 2, // 미션1 클리어: 1 -> 2
+        finishPage: -1,
+        isSetChkList: false,
+      };
+    }
   }
 };
 
@@ -312,7 +321,8 @@ const conditionTag = {
   4: 'hansNote',
   5: 'complete1',
   6: 'startMission2',
-  7: 'monitor',
+  7: 'monitorComplete',
+  8: 'complete2',
   98: 'toilet',
   99: 'coin',
   100: 'finish',
