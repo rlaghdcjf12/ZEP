@@ -62,13 +62,14 @@ App.addOnLocationTouched('coin', function (player) {
   handleObjectScenario(player, { type: 1, id: 42 });
   if (!checkCondition(player, conditionTag[99])) openDialog(player, { type: 1, id: 42 });
 });
-// App.addOnLocationTouched('finish', function (player) {
-//   if (!checkCondition(player, conditionTag[100])) {
-//     addCondition(player, 'finish');
-//     player.tag.widgetTimer.destroy();
-//     player.tag.widgetTimer = null;
-//   }
-// });
+App.addOnLocationTouched('finishLine', function (player) {
+  if (!checkCondition(player, conditionTag[100])) {
+    addCondition(player, 'finish');
+  }
+  player.tag.widgetTimer.destroy();
+  player.tag.widgetTimer = null;
+  App.showCenterLabel(`${player.name} 님이 한스를 찾았습니다!`);
+});
 
 App.addOnKeyDown(27, function (player) {
   if (player.tag.widgetDialog != null) closeDialog(player);
@@ -76,14 +77,12 @@ App.addOnKeyDown(27, function (player) {
 
 const handleObjectScenario = (player, { type, id }) => {
   if (type == 0) {
-    if (!checkCondition(player, conditionTag[0])) return { type: 1, id };
+    if (!checkCondition(player, 0)) return { type: 1, id };
   }
   // 1. normal
   else if (type == 1) {
-    if (id == 10 && !checkCondition(player, conditionTag[1]))
-      addCondition(player, checkCondition(player, conditionTag[1])); // 가비 화물 도움 태그
-    else if (id == 15 && checkCondition(player, conditionTag[5]))
-      return { type: 1, id: 16 }; // 폭포수 미션 끝나고 애니 대화
+    if (id == 10 && !checkCondition(player, 1)) addCondition(player, 1); // 가비 화물 도움 태그
+    else if (id == 15 && checkCondition(player, 5)) return { type: 1, id: 16 }; // 폭포수 미션 끝나고 애니 대화
     else if (id == 22 && player.tag.listNo == 6) setCheckList(player, 7); // 여사님 대화: 체크리스트 6->7
     else if (id == 27 && player.tag.listNo >= 10) {
       // 문동은 미션 전개
@@ -125,18 +124,19 @@ const handleDialogMessage = (player, msg) => {
     player.tag.widgetDialog = null;
     openDialog(player, { type: msg.dialogType, id: msg.link });
   } else if (msg.type == 'downTimer') {
-    // player.
+    player.tag.widgetTimer.sendMessage({
+      type: -1,
+    });
   } else if (msg.type == 'missionComplete') {
     openToast(player, '한스의 노트를 다시 확인해보자.');
-    if(msg.missionNo == 1){
+    if (msg.missionNo == 1) {
       addCondition(player, 5);
       player.tag.noteStatus = {
         flowNo: 1, // 미션1 클리어: 0 -> 1
         finishPage: -1,
         isSetChkList: false,
       };
-    }
-    else if(msg.missionNo == 2){
+    } else if (msg.missionNo == 2) {
       addCondition(player, 8);
       player.tag.noteStatus = {
         flowNo: 2, // 미션1 클리어: 1 -> 2
@@ -148,18 +148,15 @@ const handleDialogMessage = (player, msg) => {
 };
 
 const checkCondition = (player, condition) => {
-  return player.tag.condition.includes(condition);
+  if (isNaN(condition)) return player.tag.condition.includes(condition);
+  else return player.tag.condition.includes(conditionTag[condition]);
 };
 
 const addCondition = (player, condition) => {
-  log(`addCondition condition + ${condition} (isNumber? : ${!isNaN(condition)})`);
-  if (isNaN(condition)) player.tag.condition.push(condition);
-  else player.tag.condition.push(conditionTag[condition]);
-};
-
-// TODO: 추후 지울 것
-const log = (msg) => {
-  App.sayToAll(msg, 0x00ffff);
+  if (!checkCondition(player, condition)) {
+    if (isNaN(condition)) player.tag.condition.push(condition);
+    else player.tag.condition.push(conditionTag[condition]);
+  }
 };
 
 // fixed functions
@@ -173,6 +170,7 @@ const startTimer = (player) => {
     ? player.showWidgetResponsive('widget/timer.html', 12, 2, 78, 60)
     : player.showWidget('widget/timer.html', 'topRight', 200, 50);
   player.tag.widgetTimer.sendMessage({
+    type: 1,
     timer: 1800,
     isMobile: player.isMobile,
   });
@@ -232,7 +230,6 @@ const openSetNameDialog = (player) => {
 };
 
 const openDialog = (player, { type, id }) => {
-  log(`openDialog - type: ${type}, id: ${id}`);
   if (type == -1) return;
 
   if (player.tag.widgetDialog == null) {
@@ -270,6 +267,7 @@ const openNoteButton = (player) => {
 
   player.tag.widgetNoteButton.onMessage.Add(function (player, msg) {
     if (msg.type == 'clickButton') {
+      addCondition(player, 41);
       openDialog(player, { type: 4, id: 0 });
       closeNoteButton(player);
     }
@@ -319,10 +317,12 @@ const conditionTag = {
   2: 'hansCard',
   3: 'openSE',
   4: 'hansNote',
+  41: 'hansNoteOpen',
   5: 'complete1',
   6: 'startMission2',
   7: 'monitorComplete',
   8: 'complete2',
+  9: 'levi',
   98: 'toilet',
   99: 'coin',
   100: 'finish',

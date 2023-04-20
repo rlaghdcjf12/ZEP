@@ -367,7 +367,7 @@
 						{ number: 0, text: '아, 아뇨~ 그냥 기분이 좋아 보이셔서 😊', link: 1 },
 						{
 							number: 1,
-							condition: 'clean',
+							condition: 'levi',
 							text: '== 전제 조건이 되는 사람과 대화가 필요합니다. (힌트 : 팀장) ==',
 							conditionText: '혹시 MI팀 보관함 비밀번호를 아실까요?',
 							link: 2
@@ -441,7 +441,7 @@
 				{
 					name: NPC_NAME[15],
 					text: '물방울들이 순차적으로 떨어지는 이 아름다운 폭포수... 이 작은 물방울들은 본인이 어디로 가게 될 지 알까?',
-					condition: 'hansNote',
+					condition: 'hansNoteOpen',
 					options: [
 						{ number: 0, text: '(좀 이상한 것 같다.)', link: -1 },
 						{ number: 1, text: '그저 앞으로 나아갈 뿐일 것 같아.', link: 1 },
@@ -674,7 +674,7 @@
 				{
 					name: NPC_NAME[37],
 					text: '아, 그렇네요. 제 사원증은 저희 팀 보관함에 넣어놨어요! 비밀번호는 팀 이름. 요즘 띠딧 덕분에 핸드폰만 가지고 다녀서요! 😊',
-					options: [{ number: 0, text: '정말 감사합니다!', link: -1 }],
+					options: [{ number: 0, text: '정말 감사합니다!', link: -3, conditionNo: 9 }],
 				},
 			],
 			39: [ // 거울세계 이필옥

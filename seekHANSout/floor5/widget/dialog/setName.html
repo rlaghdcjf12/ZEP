@@ -124,7 +124,7 @@
 					id="input"
 					onkeyup="checkInput()"
 					onkeypress="keyPress(event)"
-					placeholder="이름 혹은 닉네임을 입력해주세요!"
+					placeholder="이름 혹은 닉네임을 입력해주세요! ('한스'는 안되요!)"
 				/>
 				<div id="optionBox" class="Box none">
 					<div class="optionGuide">>></div>
@@ -165,14 +165,16 @@
 			}
 
 			const handleButton = () => {
-				if (!isSetName) setName();
+				if (!isSetName) {
+					let name = document.getElementById("input").value;
+					if (name != '한스') setName(name);
+				}
 				else startDialog();
 			}
 
-			const setName = () => {
-				let input = document.getElementById("input").value;
+			const setName = (name) => {
 				if (!document.getElementById("button").classList.contains("disable")) {
-					document.getElementById("text").innerText = '아! ' + input + welcomeText;
+					document.getElementById("text").innerText = '아! ' + name + welcomeText;
 					document.getElementById("input").remove();
 					document.getElementById("button").classList.add("disable");
 
@@ -188,7 +190,7 @@
 					document.getElementById("options").innerHTML += optionButton;
 
 					isSetName = true;
-					window.parent.postMessage({type: "setName", name: input}, "*");
+					window.parent.postMessage({type: "setName", name: name}, "*");
 				}
 			}
 

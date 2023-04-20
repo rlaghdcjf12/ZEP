@@ -55,29 +55,42 @@
 
 			var timerInterval;
 			var timer = 0;
+			var timerDownFlag = false;
 
 			window.addEventListener("message", function (e) {
-				const { isMobile } = e.data;
-				timer = e.data.timer;
+				const { type, isMobile } = e.data;
 
-				clearInterval(timerInterval);
-				timerInterval = setInterval(function () {
-					if (--timer >= 0) {
-						document.getElementById("time").innerText = getTimer(timer);
+				if (type == 1) {
+					timer = e.data.timer;
+					clearInterval(timerInterval);
+					timerInterval = setInterval(function () {
+						if (--timer >= 0) {
+							document.getElementById("time").innerText = getTimer(timer);
 
-						if (timer <= 300){
-							if(timer % 2 == 0)
-								document.getElementById("time").className = "blink";
-							else
+							if (timerDownFlag) {
+								timer -= 120;
+								timerDownFlag = false;
 								document.getElementById("time").className = "";
+							}
+
+							if (timer <= 300){
+								if(timer % 2 == 0)
+									document.getElementById("time").className = "blink";
+								else
+									document.getElementById("time").className = "";
+							}
+						} else {
+							clearInterval(timerInterval);
+							window.parent.postMessage({type: "timeOut"}, "*");
 						}
-					} else {
-						clearInterval(timerInterval);
-						window.parent.postMessage({type: "timeOut"}, "*");
-					}
-				}, 1000);
-				document.getElementById("time").innerText = getTimer(timer);
-				if(!isMobile) document.getElementById("timer").classList += "web";
+					}, 1000);
+					document.getElementById("time").innerText = getTimer(timer);
+					if(!isMobile) document.getElementById("timer").classList += "web";
+				}
+				else if (type == -1) {
+					timerDownFlag = true;
+					document.getElementById("time").className = "blink";
+				}				
 			});
 		</script>
 	</body>
