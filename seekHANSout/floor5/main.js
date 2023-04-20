@@ -72,6 +72,12 @@ App.addOnLocationTouched('finishLine', function (player) {
   player.tag.widgetTimer = null;
   App.showCenterLabel(`${player.name} 님이 한스를 찾았습니다!`);
 });
+App.addOnLocationTouched('homeLine', function (player) {
+  if (checkCondition(player, 97)) {
+    initPlayer(player);
+    openToast(player, '잠시.. 꿈을 꿨던 것 같다.');
+  }
+});
 
 App.addOnKeyDown(27, function (player) {
   if (player.tag.widgetDialog != null) closeDialog(player);
@@ -179,9 +185,8 @@ const startTimer = (player) => {
   player.tag.widgetTimer.onMessage.Add(function (player, msg) {
     if (msg.type == 'timeOut') {
       App.sayToAll(`아아... ${player.name}님이 한스를 찾지 못했습니다...!`, 0xff0000);
-      initPlayer(player);
+      addCondition(player, 97);
       player.spawnAtLocation('home', 1);
-      openToast(player, '잠시... 꿈을 꿨던 것 같다.');
     }
   });
 };
@@ -328,6 +333,7 @@ const conditionTag = {
   7: 'monitorComplete',
   8: 'complete2',
   9: 'levi',
+  97: 'goHome',
   98: 'toilet',
   99: 'coin',
   100: 'finish',
