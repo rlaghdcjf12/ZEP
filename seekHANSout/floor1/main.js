@@ -34,7 +34,6 @@ const savePlayer = (player) => {
 };
 
 const openDialog = (player, { type, id }) => {
-  App.sayToAll(`openDialog type: ${type}, id: ${id}`);
   if (player.tag.widgetDialog == null) {
     player.tag.widgetDialog = player.showWidgetResponsive(
       `widget/normal.html`,
@@ -46,7 +45,6 @@ const openDialog = (player, { type, id }) => {
     player.tag.widgetDialog.onMessage.Add((player, msg) => handleDialogMessage(player, msg));
   }
 
-  App.sayToAll(`send message`);
   player.tag.widgetDialog.sendMessage({
     type,
     id,
