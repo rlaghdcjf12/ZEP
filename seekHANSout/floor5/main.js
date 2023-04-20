@@ -10,9 +10,11 @@ App.onInit.Add(function () {
 });
 
 App.onJoinPlayer.Add(function (player) {
+  initPlayer(player);
+});
+
+const initPlayer = (player) => {
   player.tag = {
-    sturn: false,
-    sTime: 2,
     condition: [conditionTag[0]],
     listNo: 0,
     noteStatus: {
@@ -25,7 +27,7 @@ App.onJoinPlayer.Add(function (player) {
 
   initCheckList(player);
   savePlayer(player);
-});
+};
 
 App.onObjectTouched.Add(function (sender, x, y, tileID, obj) {
   if (obj == null) return;
@@ -55,12 +57,12 @@ App.addOnLocationTouched('waterFall', function (player) {
   }
 });
 App.addOnLocationTouched('toilet', function (player) {
+  if (!checkCondition(player, 98)) openDialog(player, { type: 1, id: 40 });
   handleObjectScenario(player, { type: 1, id: 40 });
-  if (!checkCondition(player, conditionTag[98])) openDialog(player, { type: 1, id: 40 });
 });
 App.addOnLocationTouched('coin', function (player) {
+  if (!checkCondition(player, 99)) openDialog(player, { type: 1, id: 42 });
   handleObjectScenario(player, { type: 1, id: 42 });
-  if (!checkCondition(player, conditionTag[99])) openDialog(player, { type: 1, id: 42 });
 });
 App.addOnLocationTouched('finishLine', function (player) {
   if (!checkCondition(player, conditionTag[100])) {
@@ -177,6 +179,9 @@ const startTimer = (player) => {
   player.tag.widgetTimer.onMessage.Add(function (player, msg) {
     if (msg.type == 'timeOut') {
       App.sayToAll(`아아... ${player.name}님이 한스를 찾지 못했습니다...!`, 0xff0000);
+      initPlayer(player);
+      player.spawnAtLocation('home', 1);
+      openToast(player, '잠시... 꿈을 꿨던 것 같다.');
     }
   });
 };

@@ -1,0 +1,262 @@
+<html style="overflow: hidden">
+
+<head>
+	<style type="text/css">
+		.container {
+			background-color: rgba(255, 255, 255, 0);
+			font-size: min(14px, 3vmin);
+		}
+
+		#dialog {
+			padding: 5px;
+
+			background-color: rgb(255, 255, 255);
+
+			font-size: 14px;
+			color: black;
+		}
+
+		.dialogWrapper {
+			padding: 20px;
+
+			border: solid 3px dimgray;
+			border-radius: 10px;
+			background-color: white;
+		}
+
+		.noOption {
+			margin-top: 30%;
+		}
+
+		header {
+			display: flex;
+		}
+
+		h3 {
+			margin: 0;
+		}
+
+		.closeButton {
+			margin-left: auto;
+			font-size: 20px;
+			font-weight: 600;
+
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none
+		}
+
+		.closeButton img {
+			width: 24px;
+			height: 24px;
+		}
+
+		.Box {
+			width: 100%;
+			display: flex;
+			margin-top: 4px;
+		}
+
+		#options {
+			width: 100%;
+		}
+
+		#optionGuide {
+			width: 10%;
+			height: 32px;
+
+			line-height: 32px;
+			font-weight: 600;
+			text-align: center;
+		}
+
+		.option {
+			width: 100%;
+			height: 32px;
+			margin-bottom: 4px;
+
+			border: solid 1px #ccc;
+			border-radius: 4px;
+			background-color: #f3f2ff;
+
+			line-height: 32px;
+			font-size: min(14px, 3vw);
+			color: black;
+			text-align: center;
+			overflow: hidden;
+		}
+
+		.option.selected {
+			background-color: #e9e8ff;
+			color: #6758ff;
+		}
+
+		#button {
+			width: 72px;
+			height: 32px;
+			margin-left: auto;
+
+			border: solid 1px white;
+			border-radius: 4px;
+			background-color: #6758ff;
+
+			line-height: 32px;
+			color: white;
+			text-align: center;
+		}
+
+		.disable {
+			background-color: #c0c0c0 !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div id="dialog" class="dialogWrapper">
+			<header>
+				<h3 id="name"></h3>
+				<div onclick="javascript:handleCloseButton()" class="closeButton">
+					<img src="https://zep.us/images/svg/close__icon.svg" />
+				</div>
+			</header>
+			<p id="text"></p>
+			<div id="optionBox" class="Box"></div>
+			<div id="buttonBox" class="Box"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		let condition, dialogFlow;
+		let selectedOptionNo, selectedLink;
+
+		window.addEventListener("message", (e) => {
+			console.log('1 data : ', e.data)
+			init(e.data);
+
+			document.getElementById("name").innerText = dialogFlow[0].name;
+			document.getElementById("text").innerText = dialogFlow[0].text;
+
+			if (dialogFlow[0].options) {
+				setOptions(0);
+			}
+		});
+
+		const init = (data) => {
+			console.log('2 data : ', data)
+			condition = data.condition;
+			dialogFlow = NPC_DIALOG_FLOW[data.id];
+			selectedOptionNo = -1;
+			selectedLink = -11;
+		}
+
+		const setOptions = (flowNo) => {
+			document.getElementById("optionBox").innerHTML = `
+				<div id="optionGuide">>></div>
+				<div id="options"></div>`;
+			document.getElementById("buttonBox").innerHTML = `
+				<div id="button" class="disable" onclick="javascript:handleButton()">확인</div>`;
+
+			let Options = document.getElementById("options");
+			Options.innerHTML = '';
+
+			dialogFlow[flowNo].options.forEach(oi => {
+				Options.innerHTML += `
+					<button
+						id="option${oi.number}"
+						class="option"
+						onclick="javascript:handleSelectOption(${oi.number}, ${oi.link})"
+					>
+						${oi.text}
+					</button>`;
+			});
+		}
+
+		const handleCloseButton = () => {
+			window.parent.postMessage({ type: "closeDialog" }, "*");
+		}
+
+		const handleSelectOption = (optNo, link) => {
+			selectedOptionNo = optNo;
+			selectedLink = link;
+			document.getElementById(`option${optNo}`).classList.add("selected");
+			document.getElementById("button").classList.remove("disable");
+		}
+
+		const handleButton = () => {
+			if (selectedLink == -1) {
+				handleCloseButton();
+			} else {
+				document.getElementById("name").innerText = dialogFlow[selectedLink].name;
+				document.getElementById("text").innerText = dialogFlow[selectedLink].text;
+
+				if (dialogFlow[selectedLink].options) {
+					setOptions(selectedLink);
+				} else {
+					document.getElementById("optionBox").classList.add('none');
+				}
+			}
+
+			selectedOptionNo = -1;
+			selectedLink = -11;
+			document.getElementById("button").classList.add("disable");
+		}
+		
+
+		const NPC_DIALOG_FLOW = {
+			0: [ // 나
+				{
+					name: '나',
+					text: '이제 곧 6시네... 한스 이 놈은 도대체 어디로 사라진거야?? 연락도 안되고!\n'
+						+ '화살표를 따라 이동해보자.',
+				},
+			],
+			1: [ // 안내원
+				{
+					name: '게임 안내원',
+					text: '안녕하세요~ 이 게임에 대해서 간단히 안내해드릴게요!',
+					options: [
+						{ number: 0, text: '네!', link: 1 },
+					],
+				},
+				{
+					name: '게임 안내원',
+					text: '우선, 오면서 보셨겠지만 기본적으로 Z와 F키를 통한 행동이 있어요. 안내원에게 말을 걸거나 게이트를 열 때 F키를 통해 입장했을 거에요.',
+					options: [
+						{ number: 0, text: '네, 처음이라 익숙치는 않네요.', link: 2 },
+					],
+				},
+				{
+					name: '게임 안내원',
+					text: '앞의 안내원처럼 말풍선 형태로 이야기를 하는 경우도 있고, 지금처럼 가운데에 창이 열리는 대화가 있어요.',
+					options: [
+						{ number: 0, text: '네, 알겠습니다.', link: 3 },
+					],
+				},
+				{
+					name: '게임 안내원',
+					text: '게임의 목표는 연구동 5층에서 30분 안에 한스를 찾는 것이고, 중간중간 함정이나 문제들이 숨어있어요. 이것들을 잘 맞추고 해결하면서 나오시면 됩니다.',
+					options: [
+						{ number: 0, text: '네, 해보겠습니다.', link: 4 },
+					],
+				},
+				{
+					name: '게임 안내원',
+					text: '옆에 가이드도 있으니, 한 번 확인하고 가세요~!',
+					options: [
+						{ number: 0, text: '네!', link: 5 },
+					],
+				},
+				{
+					name: '게임 안내원',
+					text: '특별한 스탬프들도 곳곳에 숨겨놨으니, 잘 찾아보세요 😊',
+					options: [
+						{ number: 0, text: '네, 안내 감사합니다~', link: -1 },
+					],
+				},
+			],
+		};
+	</script>
+</body>
+
+</html>
